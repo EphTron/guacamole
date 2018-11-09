@@ -76,9 +76,7 @@ class DynamicGeometryResource : public GeometryResource {
    *
    * \param context          The RenderContext to draw onto.
    */
-  void draw(RenderContext& context) const;
-  // done by ephra: auskommentiert weil funktionalitaet von Dynamic Point uebernommen werden soll
-  void draw(RenderContext& context, bool render_vertices_as_points) const;
+  virtual void draw(RenderContext& context) const=0;
 
 
   void ray_test(Ray const& ray, int options,
@@ -109,8 +107,9 @@ class DynamicGeometryResource : public GeometryResource {
 
   void forward_queued_vertices(std::vector<scm::math::vec3f> const& queued_positions,
                                std::vector<scm::math::vec4f> const& queued_colors,
-                               std::vector<float> const& queued_thicknesses,
-                               std::vector<scm::math::vec3f> const& queued_normals);
+                               std::vector<float> const& queued_thicknesses//,
+                               //std::vector<scm::math::vec3f> const& queued_normals
+                               );
 
   math::vec3 get_vertex(unsigned int i) const;
 

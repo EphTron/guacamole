@@ -24,6 +24,7 @@
 
 // guacamole headers
 #include <gua/renderer/DynamicGeometryResource.hpp>
+
 #include <gua/renderer/Material.hpp>
 #include <gua/utils/Mesh.hpp>
 
@@ -38,11 +39,16 @@ struct aiNode;
 
 namespace gua {
 
+  class GeometryDescription;
+
 namespace node {
 class Node;
 class InnerNode;
 class GeometryNode;
+class DynamicGeometryNode;
 }
+
+  
 
 /**
  * Loads and draws dynamic geometries.
@@ -111,7 +117,7 @@ public:
    *
    * \param file_name        The file to load the meshs data from.
    * \param material_name    The material name that was set to the parent node
- */
+  */
   std::shared_ptr<node::Node> load(std::string const& file_name,
                                   unsigned flags,
                                   bool create_geometries,
@@ -133,6 +139,10 @@ public:
   */
   int is_supported(std::string const& file_name) const;
  private: // methods
+
+  virtual std::shared_ptr<gua::node::DynamicGeometryNode> create_geometry_instance(std::shared_ptr<DynamicGeometryImporter> importer, 
+                GeometryDescription const& desc,
+                unsigned flags)=0;
 
   static void apply_fallback_material(std::shared_ptr<node::Node> const& root,
                 std::shared_ptr<Material> const& fallback_material,
