@@ -31,6 +31,7 @@ namespace gua {
 
 class DynamicGeometryResource;
 class DynamicGeometryLoader;
+class GeometryDescription;
 
 namespace node {
 
@@ -99,15 +100,17 @@ public : // methods
 
   void enqueue_vertex(float x, float y, float z,
                       float col_r = 0.0f, float col_g = 0.0f, float col_b = 0.0f, float col_a = 1.0f,
-                      float thickness = 1.0f,
-                      float nor_x = 0.0f, float nor_y = 1.0f, float nor_z = 0.0f);
+                      float thickness = 1.0f//,
+                      //float nor_x = 0.0f, float nor_y = 1.0f, float nor_z = 0.0f
+                      );
 
   void push_vertex(DynamicGeometry::Vertex const& dynamic_geometry_vertex);
 
   void push_vertex(float x, float y, float z,
                    float col_r = 0.0f, float col_g = 0.0f, float col_b = 0.0f, float col_a = 1.0f,
-                   float thickness = 1.0f,
-                   float nor_x = 0.0f, float nor_y = 1.0f, float nor_z = 0.0f);
+                   float thickness = 1.0f//,
+                   //float nor_x = 0.0f, float nor_y = 1.0f, float nor_z = 0.0f
+                   );
 
   void pop_back_vertex();
   void pop_front_vertex();
@@ -151,13 +154,27 @@ public : // methods
 
  protected:
 
-  std::shared_ptr<Node> copy() const override;
+  virtual std::shared_ptr<Node> copy() const=0;
+
+  // std::shared_ptr<DynamicGeometryResource> geometry_;
+  std::string                       geometry_description_;
+  bool                              geometry_changed_;
+  bool                              was_created_empty_;
+  bool                              trigger_update_;
+
+  std::vector<scm::math::vec3f> queued_positions_;
+  std::vector<scm::math::vec4f> queued_colors_;
+  std::vector<float> queued_thicknesses_;
+
+ private: //methods
+
+  virtual void update_geometry_cache(::gua::GeometryDescription const& desc) =0; 
 
  private:  // attributes e.g. special attributes for drawing
 
   std::shared_ptr<DynamicGeometryResource> geometry_;
-  std::string                        geometry_description_;
-  bool                               geometry_changed_;
+  // std::string                        geometry_description_;
+  // bool                               geometry_changed_;
 
   std::shared_ptr<Material>         material_;
   bool                              render_to_gbuffer_;
@@ -169,14 +186,14 @@ public : // methods
   float                             screen_space_line_width_;
   float                             screen_space_point_size_;
 
-  bool                              was_created_empty_;
+  // bool                              was_created_empty_;
 
-  bool                              trigger_update_;
+  // bool                              trigger_update_;
 
-  std::vector<scm::math::vec3f> queued_positions_;
-  std::vector<scm::math::vec4f> queued_colors_;
-  std::vector<float> queued_thicknesses_;
-  std::vector<scm::math::vec3f> queued_normals_;
+  // std::vector<scm::math::vec3f> queued_positions_;
+  // std::vector<scm::math::vec4f> queued_colors_;
+  // std::vector<float> queued_thicknesses_;
+  //std::vector<scm::math::vec3f> queued_normals_;
 
 };
 
