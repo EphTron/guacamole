@@ -42,7 +42,9 @@ int main(int argc, char** argv) {
   // setup scene
   gua::SceneGraph graph("main_scenegraph");
 
-  gua::LineStripLoader line_strip_loader;
+  gua::DynamicTriangleLoader line_strip_loader;
+  // gua::DynamicGeometryLoader line_strip_loader;
+  // gua::LineStripLoader line_strip_loader;
 
   auto line_strip_example_node(line_strip_loader
                               .create_empty_geometry("ls_example_node", 
@@ -50,29 +52,29 @@ int main(int argc, char** argv) {
 
   // get type of example node
   std::cout << "typeof(i) = " << type_str<decltype(line_strip_example_node)>() << '\n';
+
   auto transform = graph.add_node<gua::node::TransformNode>("/", "transform");
-  auto node = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+  
+  // auto node = std::dynamic_pointer_cast<gua::node::DynamicGeometryNode>(line_strip_example_node);
+  auto node = std::dynamic_pointer_cast<gua::node::DynamicTriangleNode>(line_strip_example_node);
+  // auto node = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
 
-  node->push_vertex(2.0f, 0.0f, -4.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(0.0f, 0.5f, -4.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(1.0f, 0.0f, -4.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(1.0f, 0.0f, -1.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(5.0f, 0.0f, -4.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(1.0f, 0.0f, -4.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(-1.0f, 0.5f, -4.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(-2.0f, 0.0f, -4.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(-3.0f, 0.0f, -3.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(-2.0f, 0.1f, -3.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(-2.5f, 0.0f, -2.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
-  node->push_vertex(-3.5f, 1.0f, -1.0,0.0f,0.0f,0.0f,0.0f, 1.0f,0.0f,1.0f,0.0f);
+  node->push_vertex(-1.0f,  1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.0f, 1.0f);
+  node->push_vertex( 1.0f, -1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.0f, 5.0f);
+  node->push_vertex( 1.0f,  1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.0f, 1.0f);
 
+  // node->push_vertex(-1.0f, 1.0f, -4.0,0.0f,0.0f,0.0f,1.0f, 0.1f);
+  // node->push_vertex(-1.0f, -1.0f, -4.0,0.0f,0.0f,0.0f,1.0f, 0.1f);
+  // node->push_vertex(1.0f, -1.0f, -4.0,0.0f,0.0f,0.0f,1.0f, 0.1f);
+
+
+  node->set_draw_bounding_box(true);
+  node->set_render_volumetric(false);
+  //node->set_screen_space_line_width(2.5f);
    
   graph.add_node("/transform", line_strip_example_node);
 
   scm::math::vec3d cube_translation(0.0, 0.0, -5.0);
-
-  cube->set_draw_bounding_box(true);
-
 
   auto light2 = graph.add_node<gua::node::LightNode>("/", "light2");
   light2->data.set_type(gua::node::LightNode::Type::POINT);
