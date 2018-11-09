@@ -46,25 +46,28 @@ struct DynamicGeometryObject {
     vertex_position_database.reserve(max_geometry_vertices);
     vertex_color_database.reserve(max_geometry_vertices);
     vertex_thickness_database.reserve(max_geometry_vertices);
-    vertex_normal_database.reserve(max_geometry_vertices);
+    // vertex_normal_database.reserve(max_geometry_vertices);
+    vertex_uv_database.reserve(max_geometry_vertices);
 
   }
 
   std::vector<scm::math::vec3f> vertex_position_database;
   std::vector<scm::math::vec4f> vertex_color_database;
   std::vector<float> 			vertex_thickness_database;
-  std::vector<scm::math::vec3f> vertex_normal_database;
+  // std::vector<scm::math::vec3f> vertex_normal_database;
+  std::vector<scm::math::vec2f> vertex_uv_database;
 
   //not used in the first version of the importer
   std::vector<IndexTriplet> vertex_attribute_ids;
 };
 
-using NamedDynamicGeometryObject = std::pair<std::string, DynamicGeometryObject>;
+// possible to do ableiten
 
 /**
  * @brief holds vertex information of one dynamic geometry
  */
 class GUA_DLL DynamicGeometryImporter {
+  // todo change name to creator instead of importer
 
   friend class DynamicGeometry;
   
@@ -74,11 +77,9 @@ class GUA_DLL DynamicGeometryImporter {
 
     bool parsing_successful() const;	
     
-    void read_file(std::string const& file_name);
-
     int num_parsed_dynamic_geometries() const;
 
-	NamedDynamicGeometryObject parsed_dynamic_geometry_object_at(int dynamic_geometry_object_index) const;
+	std::shared_ptr<DynamicGeometryObject> get_dynamic_geometry_object_ptr() const;
 
   private:
 
@@ -86,9 +87,7 @@ class GUA_DLL DynamicGeometryImporter {
 
   	int num_parsed_dynamic_geometries_ = 0;
 
-  	std::vector<NamedDynamicGeometryObject> parsed_dynamic_geometry_objects_;
-
-
+  	std::shared_ptr<DynamicGeometryObject> dynamic_geometry_object_ptr_;
 
 };
 

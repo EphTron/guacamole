@@ -1,5 +1,5 @@
 // class header
-#include <gua/utils/DynamicGeometry.hpp>
+#include <gua/utils/DynamicTriangle.hpp>
 
 // guacamole headers
 #include <gua/utils/Logger.hpp>
@@ -14,20 +14,16 @@
 namespace gua {
 
 
-DynamicGeometry::
-DynamicGeometry(unsigned int intitial_geometry_buffer_size) : 
+DynamicTriangle::
+DynamicTriangle(unsigned int intitial_geometry_buffer_size) : 
+  DynamicGeometry::DynamicGeometry(intitial_geometry_buffer_size),
   vertex_reservoir_size(intitial_geometry_buffer_size),
   num_occupied_vertex_slots() {
-  
-  positions.resize(vertex_reservoir_size);
-  colors.resize(vertex_reservoir_size);
-  thicknesses.resize(vertex_reservoir_size);
-  //normals.resize(vertex_reservoir_size);
+    uvs.resize(vertex_reservoir_size);
 }
 
-
-DynamicGeometry::
-DynamicGeometry(DynamicGeometryObject const& dynamic_geometry_object) {
+DynamicTriangle::
+DynamicTriangle(DynamicGeometryObject const& dynamic_geometry_object) {
 
   //create dynamic geometry vbos from parsed dynamic geometry object
 
@@ -35,27 +31,26 @@ DynamicGeometry(DynamicGeometryObject const& dynamic_geometry_object) {
     //consider all vertex attributes in order of their appearance
     if(    (dynamic_geometry_object.vertex_position_database.size() != dynamic_geometry_object.vertex_color_database.size()) 
         || (dynamic_geometry_object.vertex_position_database.size() != dynamic_geometry_object.vertex_thickness_database.size()) 
-        //|| (dynamic_geometry_object.vertex_position_database.size() != dynamic_geometry_object.vertex_normal_database.size()) 
+        || (dynamic_geometry_object.vertex_position_database.size() != dynamic_geometry_object.vertex_uv_database.size()) 
       ) {
       Logger::LOG_WARNING << "Unequal size of dynamic geometry vertex attributes!" << std::endl;
       Logger::LOG_WARNING << dynamic_geometry_object.vertex_position_database.size() << ", "
                           << dynamic_geometry_object.vertex_color_database.size() << ", "
-                          << dynamic_geometry_object.vertex_thickness_database.size() //<< ", "
-                          //<< dynamic_geometry_object.vertex_normal_database.size()
-                          << "\n";
+                          << dynamic_geometry_object.vertex_thickness_database.size() << ", "
+                          << dynamic_geometry_object.vertex_uv_database.size() << "\n";
     } else {
       vertex_reservoir_size = num_occupied_vertex_slots = dynamic_geometry_object.vertex_position_database.size();
       positions   = dynamic_geometry_object.vertex_position_database;
       colors      = dynamic_geometry_object.vertex_color_database;
       thicknesses = dynamic_geometry_object.vertex_thickness_database;
-      //normals     = dynamic_geometry_object.vertex_normal_database;
+      uvs     = dynamic_geometry_object.vertex_uv_database;
     }
   } else {
     //indexed construction not implemented yet
   }
 }
 
-void DynamicGeometry::
+void DynamicTriangle::
 enlarge_reservoirs() {
 
   if(vertex_reservoir_size > 0) {
@@ -67,10 +62,10 @@ enlarge_reservoirs() {
   positions.resize(padded_reservoir_size);
   colors.resize(padded_reservoir_size);
   thicknesses.resize(padded_reservoir_size);
-  //normals.resize(padded_reservoir_size);
+  uvs.resize(padded_reservoir_size);
 }
 
-void DynamicGeometry::compute_consistent_normals() const {
+void DynamicTriangle::compute_consistent_normals() const {
 
     // bool last_plane_normal_exists = false;
     // scm::math::vec3f last_plane_normal = scm::math::vec3f(0.0f, 0.0f, 0.0f);
@@ -138,7 +133,7 @@ void DynamicGeometry::compute_consistent_normals() const {
 }
 
 
-void DynamicGeometry::compile_buffer_string(std::string& buffer_string) {
+void DynamicTriangle::compile_buffer_string(std::string& buffer_string) {
 
   uint64_t num_vertices_to_write = num_occupied_vertex_slots;
 
@@ -146,13 +141,13 @@ void DynamicGeometry::compile_buffer_string(std::string& buffer_string) {
   uint64_t size_of_positions     = num_vertices_to_write * sizeof(Vertex::pos);
   uint64_t size_of_colors        = num_vertices_to_write * sizeof(Vertex::col);
   uint64_t size_of_thicknesses   = num_vertices_to_write * sizeof(Vertex::thick);
-  // uint64_t size_of_normals       = num_vertices_to_write * sizeof(Vertex::nor);
+  uint64_t size_of_uvs           = num_vertices_to_write * sizeof(TriVertex::uv);
 
   uint64_t num_string_bytes =   size_of_byte_count 
                               + size_of_positions
                               + size_of_colors
-                              + size_of_thicknesses;
-                              //+ size_of_normals
+                              + size_of_thicknesses
+                              + size_of_uvs;
 
   std::string tmp_string(num_string_bytes, '0');
 
@@ -165,12 +160,12 @@ void DynamicGeometry::compile_buffer_string(std::string& buffer_string) {
            write_offset += size_of_colors;
   memcpy(&tmp_string[write_offset], &thicknesses[0], size_of_thicknesses);
            write_offset += size_of_thicknesses;
-  // memcpy(&tmp_string[write_offset], &normals[0], size_of_normals);
+  memcpy(&tmp_string[write_offset], &uvs[0], size_of_uvs);
 
   buffer_string = tmp_string;
 }
 
-void DynamicGeometry::uncompile_buffer_string(std::string const& buffer_string) {
+void DynamicTriangle::uncompile_buffer_string(std::string const& buffer_string) {
 
   uint64_t num_vertices_written = 0;
   uint64_t read_offset = 0;
@@ -180,7 +175,7 @@ void DynamicGeometry::uncompile_buffer_string(std::string const& buffer_string) 
   }
 
   if(buffer_string.size() != num_vertices_written*sizeof(Vertex) + sizeof(uint64_t) ) {
-    Logger::LOG_WARNING << "Buffer String size and expected size are not consistent! Ignoring dynamic geometry update." << std::endl;
+    Logger::LOG_WARNING << "Buffer String size and expected size are not consistent! Ignoring dynamic triangle update." << std::endl;
     return;
   }
 
@@ -191,7 +186,7 @@ void DynamicGeometry::uncompile_buffer_string(std::string const& buffer_string) 
     positions.resize(newly_occupied_vertex_slots);
     colors.resize(newly_occupied_vertex_slots);
     thicknesses.resize(newly_occupied_vertex_slots);
-    //normals.resize(newly_occupied_vertex_slots);
+    uvs.resize(newly_occupied_vertex_slots);
 
     vertex_reservoir_size = newly_occupied_vertex_slots;
   }
@@ -202,13 +197,13 @@ void DynamicGeometry::uncompile_buffer_string(std::string const& buffer_string) 
   memcpy(&colors[currently_occupied_vertex_slots], &buffer_string[read_offset], num_vertices_written*sizeof(Vertex::col));
   read_offset +=  num_vertices_written*sizeof(Vertex::col);
   memcpy(&thicknesses[currently_occupied_vertex_slots], &buffer_string[read_offset], num_vertices_written*sizeof(Vertex::thick));
-  //read_offset +=  num_vertices_written*sizeof(Vertex::nor);
-  //memcpy(&normals[currently_occupied_vertex_slots], &buffer_string[read_offset], num_vertices_written*sizeof(Vertex::nor));
+  read_offset +=  num_vertices_written*sizeof(TriVertex::uv);
+  memcpy(&uvs[currently_occupied_vertex_slots], &buffer_string[read_offset], num_vertices_written*sizeof(TriVertex::uv));
 
   num_occupied_vertex_slots = num_vertices_written;
 }
 
-bool DynamicGeometry::push_vertex(Vertex const& v_to_push) {
+bool DynamicTriangle::push_vertex(TriVertex const& v_to_push) {
 
   if(num_occupied_vertex_slots >= vertex_reservoir_size) {
     enlarge_reservoirs();
@@ -217,27 +212,27 @@ bool DynamicGeometry::push_vertex(Vertex const& v_to_push) {
   positions[num_occupied_vertex_slots] = v_to_push.pos;
   colors[num_occupied_vertex_slots] = v_to_push.col;
   thicknesses[num_occupied_vertex_slots] = v_to_push.thick;
-  //normals[num_occupied_vertex_slots] = v_to_push.nor;
+  uvs[num_occupied_vertex_slots] = v_to_push.uv;
   ++num_occupied_vertex_slots;
  return true;
 }
 
-bool DynamicGeometry::pop_front_vertex() {
+bool DynamicTriangle::pop_front_vertex() {
 
   if(num_occupied_vertex_slots < 2) {
-    Logger::LOG_WARNING << "No DynamicGeometry Vertex left to pop!" << std::endl;
+    Logger::LOG_WARNING << "No DynamicTriangle Vertex left to pop!" << std::endl;
     return false;
   }
   positions.erase(positions.begin());
   colors.erase(colors.begin());
   thicknesses.erase(thicknesses.begin());
-  //normals.erase(normals.begin());
+  uvs.erase(uvs.begin());
 
   --num_occupied_vertex_slots;
   return true;
 }
 
-bool DynamicGeometry::pop_back_vertex() {
+bool DynamicTriangle::pop_back_vertex() {
 
   if(num_occupied_vertex_slots < 2) {
     Logger::LOG_WARNING << "No DynamicGeometry Vertex left to pop!" << std::endl;
@@ -247,20 +242,20 @@ bool DynamicGeometry::pop_back_vertex() {
   positions.pop_back();
   colors.pop_back();
   thicknesses.pop_back();
-  //normals.pop_back();
+  uvs.pop_back();
 
   --num_occupied_vertex_slots;
 
   return true;
 }
 
-bool DynamicGeometry::clear_vertices() {
+bool DynamicTriangle::clear_vertices() {
 
   if(!num_occupied_vertex_slots == 0) {
     positions.clear();
     colors.clear();
     thicknesses.clear();
-    //normals.clear();
+    uvs.clear();
 
     num_occupied_vertex_slots = 0;
 
@@ -269,15 +264,14 @@ bool DynamicGeometry::clear_vertices() {
   return false;
 }
 
-void DynamicGeometry::forward_queued_vertices(std::vector<scm::math::vec3f> const& queued_positions,
+void DynamicTriangle::forward_queued_vertices(std::vector<scm::math::vec3f> const& queued_positions,
                                         std::vector<scm::math::vec4f> const& queued_colors,
-                                        std::vector<float> const& queued_thicknesses //,
-                                        //std::vector<scm::math::vec3f> const& queued_normals
-                                        ) {
+                                        std::vector<float> const& queued_thicknesses,
+                                        std::vector<scm::math::vec2f> const& queued_uvs) {
   positions      = queued_positions;
   colors         = queued_colors;
   thicknesses    = queued_thicknesses;
-  //normals        = queued_normals;
+  uvs            = queued_uvs;
 
   num_occupied_vertex_slots = positions.size();
 
@@ -287,24 +281,23 @@ void DynamicGeometry::forward_queued_vertices(std::vector<scm::math::vec3f> cons
 
 }
 
-void DynamicGeometry::copy_to_buffer(Vertex* vertex_buffer)  const {
+void DynamicTriangle::copy_to_buffer(TriVertex* vertex_buffer)  const {
 
   for (int vertex_id(0); vertex_id < num_occupied_vertex_slots; ++vertex_id) {
     vertex_buffer[vertex_id].pos = positions[vertex_id];
     vertex_buffer[vertex_id].col = colors[vertex_id];
     vertex_buffer[vertex_id].thick = thicknesses[vertex_id];
-    //vertex_buffer[vertex_id].nor = normals[vertex_id];
+    vertex_buffer[vertex_id].uv = uvs[vertex_id];
   }
 
 }
 
-scm::gl::vertex_format DynamicGeometry::get_vertex_format() const {
+scm::gl::vertex_format DynamicTriangle::get_vertex_format() const {
   return scm::gl::vertex_format(
     0, 0, scm::gl::TYPE_VEC3F, sizeof(Vertex))(
     0, 1, scm::gl::TYPE_VEC4F, sizeof(Vertex))(
-    0, 2, scm::gl::TYPE_FLOAT, sizeof(Vertex))
-    //(0, 3, scm::gl::TYPE_VEC3F, sizeof(Vertex))
-    ;
+    0, 2, scm::gl::TYPE_FLOAT, sizeof(Vertex))(
+    0, 3, scm::gl::TYPE_VEC2F, sizeof(Vertex));
 }
 
 } // namespace gua
