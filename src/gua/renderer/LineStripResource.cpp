@@ -81,7 +81,6 @@ LineStripResource::LineStripResource(LineStrip const& line_strip, bool build_kd_
 void LineStripResource::upload_to(RenderContext& ctx) const {
   std::lock_guard<std::mutex> lock(line_strip_update_mutex_);
 
-
 /*
   if (line_strip_.vertex_reservoir_size == 0) {
     Logger::LOG_WARNING << "Unable to load LineStrip! Has no vertex data." << std::endl;
@@ -89,10 +88,6 @@ void LineStripResource::upload_to(RenderContext& ctx) const {
   }
 */
  
-
-
-
-
   auto line_strip_iterator = ctx.line_strips.find(uuid());
 
   bool update_cached_linestrip{false};
@@ -152,7 +147,7 @@ void LineStripResource::draw(RenderContext& ctx) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 void LineStripResource::draw(RenderContext& ctx, bool render_vertices_as_points) const {
-
+  //std::cout<<"drawing"<<std::endl;
   auto iter = ctx.line_strips.find(uuid());
 
 
