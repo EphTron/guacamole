@@ -24,7 +24,7 @@
 
 // guacamole headers
 #include <gua/utils/TextFile.hpp>
-#include <gua/utils/DynamicGeometryImporter.hpp>
+// #include <gua/utils/DynamicGeometryImporter.hpp>
 #include <gua/utils/Logger.hpp>
 #include <gua/utils/string_utils.hpp>
 #include <gua/utils/ToGua.hpp>
@@ -59,13 +59,10 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load_geometry(
   auto searched(loaded_files_.find(key));
 
   if (searched != loaded_files_.end()) {
-
     cached_node = searched->second;
-
   } else {
 
     bool fileload_succeed = false;
-
     int topology_type = is_supported(file_name);
 
     if (topology_type) {
@@ -90,14 +87,11 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load_geometry(
           auto max_size(std::max(std::max(size.x, size.y), size.z));
           cached_node->scale(1.f / max_size);
         }
-
       }
-
       fileload_succeed = true;
     }
 
     if (!fileload_succeed) {
-
       Logger::LOG_WARNING << "Unable to load " << file_name
                           << ": Type is not supported!" << std::endl;
     }
@@ -117,9 +111,7 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::create_geometry_from_file(
 
   if (cached_node) {
     auto copy(cached_node->deep_copy());
-
-    apply_fallback_material(
-        copy, fallback_material, flags & NO_SHARED_MATERIALS);
+    apply_fallback_material(copy, fallback_material, flags & NO_SHARED_MATERIALS);
 
     copy->set_name(node_name);
     return copy;
@@ -213,7 +205,7 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load(
     
 
     if(!create_empty) {
-      importer->read_file(file_name);
+      //importer->read_file(file_name);
     } else {
       importer->create_empty_dynamic_geometry(file_name);
     }
@@ -229,30 +221,17 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load(
     auto load_geometry = [&](int obj_idx) {
       GeometryDescription desc("DynamicGeometry", file_name, dynamic_geometry_count++, flags);
 
-      GeometryDatabase::instance()->add(
-          desc.unique_key(),
-          std::make_shared<DynamicGeometryResource>(
-              DynamicGeometry {importer->parsed_dynamic_geometry_object_at(obj_idx).second},
-              flags & DynamicGeometryLoader::MAKE_PICKABLE));
+      std::shared_ptr<node::DynamicGeometryNode> node_to_return = create_geometry_instance(importer, desc, flags);
+      
 
-    std::shared_ptr<node::DynamicGeometryNode> node_to_return = 
-        std::make_shared<node::DynamicGeometryNode>(node::DynamicGeometryNode("", desc.unique_key()) );
+      if(create_geometries) {
+        node_to_return->set_render_vertices_as_points(false);
+        //node_to_return->set_render_volumetric(false);
+        node_to_return->set_render_volumetric(false);
+      }
 
-    if(create_empty) {
-      node_to_return->set_empty();
-    }
-
-    if(create_geometries) {
-      node_to_return->set_render_vertices_as_points(false);
-      node_to_return->set_render_volumetric(true);
-    } else {
-      node_to_return->set_render_vertices_as_points(true);
-      node_to_return->set_render_volumetric(true);
-    }
-
-    return node_to_return;
+      return node_to_return;
     };
-
 
     // there is only one geometry --- return it!
     if (importer->num_parsed_dynamic_geometries() == 1) {
@@ -266,10 +245,8 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load(
       group->add_child(load_geometry(geo_obj_idx));
     }
 
-
     return group;
   }
-  
 
   Logger::LOG_WARNING << "Failed to load object \"" << file_name
                       << "\": File does not exist!" << std::endl;

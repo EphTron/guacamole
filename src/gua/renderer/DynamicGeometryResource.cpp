@@ -36,7 +36,8 @@ namespace gua {
 ////////////////////////////////////////////////////////////////////////////////
 
 DynamicGeometryResource::DynamicGeometryResource()
-    : kd_tree_(), dynamic_geometry_(), vertex_rendering_mode_(scm::gl::PRIMITIVE_LINE_LIST), clean_flags_per_context_() {
+    : kd_tree_(), dynamic_geometry_(), vertex_rendering_mode_(scm::gl::PRIMITIVE_TRIANGLE_LIST), clean_flags_per_context_() {
+    // : kd_tree_(), dynamic_geometry_(), vertex_rendering_mode_(scm::gl::PRIMITIVE_LINE_LIST), clean_flags_per_context_() {
   compute_bounding_box();
 }
 
@@ -103,7 +104,8 @@ void DynamicGeometryResource::upload_to(RenderContext& ctx) const {
   }
 
                                             // = mode_;
-  dynamic_geometry_to_update_ptr->vertex_topology = scm::gl::PRIMITIVE_LINE_STRIP_ADJACENCY;
+  //dynamic_geometry_to_update_ptr->vertex_topology = scm::gl::PRIMITIVE_LINE_LIST;
+  dynamic_geometry_to_update_ptr->vertex_topology = scm::gl::PRIMITIVE_TRIANGLE_LIST;
   dynamic_geometry_to_update_ptr->vertex_reservoir_size = dynamic_geometry_.vertex_reservoir_size;
   dynamic_geometry_to_update_ptr->num_occupied_vertex_slots = dynamic_geometry_.num_occupied_vertex_slots;
 
@@ -119,9 +121,6 @@ void DynamicGeometryResource::upload_to(RenderContext& ctx) const {
     update_cached_dynamic_geometry = true;
   }
 
-
-
-
   if(dynamic_geometry_.vertex_reservoir_size != 0) {
     DynamicGeometry::Vertex* data(static_cast<DynamicGeometry::Vertex*>(ctx.render_context->map_buffer(
       dynamic_geometry_to_update_ptr->vertices, scm::gl::ACCESS_WRITE_INVALIDATE_BUFFER)));
@@ -136,49 +135,6 @@ void DynamicGeometryResource::upload_to(RenderContext& ctx) const {
   }
   
   ctx.render_context->apply();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void DynamicGeometryResource::draw(RenderContext& ctx) const {
-  //DUMMY
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void DynamicGeometryResource::draw(RenderContext& ctx, bool render_vertices_as_points) const {
-
-  auto iter = ctx.dynamic_geometries.find(uuid());
-
-
-
-  bool& clean_flag_for_context = clean_flags_per_context_[uuid()];
-
-  if (iter == ctx.dynamic_geometries.end() || (!clean_flag_for_context) /*|| ctx_dirty_flag*/) {
-    // upload to GPU if neccessary
-
-    compute_consistent_normals();
-    upload_to(ctx);
-    iter = ctx.dynamic_geometries.find(uuid());
-
-    clean_flag_for_context = true;
-    //dirty_flags_per_context_[uuid()] = false;;
-  }
-  
-
-
-  ctx.render_context->bind_vertex_array(iter->second.vertex_array);
-  //ctx.render_context->bind_index_buffer(iter->second.indices, iter->second.indices_topology, iter->second.indices_type);
-  ctx.render_context->apply_vertex_input();
-  
-  if(!render_vertices_as_points) {
-    //ctx.render_context->draw_arrays(scm::gl::PRIMITIVE_LINE_LOOP, 0, iter->second.num_occupied_vertex_slots+2);
-    ctx.render_context->draw_arrays(iter->second.vertex_topology, 0, iter->second.num_occupied_vertex_slots+3);
-  } else {
-    ctx.render_context->draw_arrays(scm::gl::PRIMITIVE_POINT_LIST, 1, iter->second.num_occupied_vertex_slots);
-  }
-
-  
 }
 
 
@@ -294,13 +250,15 @@ void DynamicGeometryResource::set_vertex_rendering_mode(scm::gl::primitive_topol
 
 void DynamicGeometryResource::forward_queued_vertices(std::vector<scm::math::vec3f> const& queued_positions,
                                                 std::vector<scm::math::vec4f> const& queued_colors,
-                                                std::vector<float> const& queued_thicknesses,
-                                                std::vector<scm::math::vec3f> const& queued_normals) {
+                                                std::vector<float> const& queued_thicknesses//,
+                                                //std::vector<scm::math::vec3f> const& queued_normals
+                                                ) {
   std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
   dynamic_geometry_.forward_queued_vertices(queued_positions,
                                       queued_colors,
-                                      queued_thicknesses,
-                                      queued_normals);
+                                      queued_thicknesses//,
+                                      //queued_normals
+                                      );
   compute_bounding_box();
   make_clean_flags_dirty();
 }
