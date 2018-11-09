@@ -66,4 +66,4 @@ class LineStripRenderer {
 
 }
 
-#endif  // GUA_TRIMESH_RENDERER_HPP
+#endif  // GUA_LINE_STRIP_RENDERER_HPP
