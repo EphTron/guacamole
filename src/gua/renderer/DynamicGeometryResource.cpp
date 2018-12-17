@@ -35,8 +35,8 @@ namespace gua {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-DynamicGeometryResource::DynamicGeometryResource()
-    : kd_tree_(), dynamic_geometry_(), vertex_rendering_mode_(scm::gl::PRIMITIVE_TRIANGLE_LIST), clean_flags_per_context_() {
+DynamicGeometryResource::DynamicGeometryResource(scm::gl::primitive_topology vertex_rendering_mode)
+    : kd_tree_(), dynamic_geometry_ptr_(), vertex_rendering_mode_(vertex_rendering_mode), clean_flags_per_context_() {
     // : kd_tree_(), dynamic_geometry_(), vertex_rendering_mode_(scm::gl::PRIMITIVE_LINE_LIST), clean_flags_per_context_() {
   compute_bounding_box();
 }
@@ -50,16 +50,16 @@ void DynamicGeometryResource::compute_bounding_box() {
   //if (dynamic_geometry_.num_occupied_vertex_slots > 0) {
     bounding_box_ = math::BoundingBox<math::vec3>();
 
-    if(0 == dynamic_geometry_.num_occupied_vertex_slots) {
+    if(0 == dynamic_geometry_ptr_->num_occupied_vertex_slots) {
       bounding_box_.expandBy(math::vec3{-0.5, -0.5, -0.5 });
       bounding_box_.expandBy(math::vec3{ 0.5,  0.5,  0.5});      
     }
-    if(1 == dynamic_geometry_.num_occupied_vertex_slots) {
-       bounding_box_.expandBy(math::vec3{dynamic_geometry_.positions[0] - 0.0001f });
-       bounding_box_.expandBy(math::vec3{dynamic_geometry_.positions[0] + 0.0001f });
+    if(1 == dynamic_geometry_ptr_->num_occupied_vertex_slots) {
+       bounding_box_.expandBy(math::vec3{dynamic_geometry_ptr_->positions[0] - 0.0001f });
+       bounding_box_.expandBy(math::vec3{dynamic_geometry_ptr_->positions[0] + 0.0001f });
     } else {
-      for (int v(0); v < dynamic_geometry_.num_occupied_vertex_slots; ++v) {
-        bounding_box_.expandBy(math::vec3{dynamic_geometry_.positions[v]});
+      for (int v(0); v < dynamic_geometry_ptr_->num_occupied_vertex_slots; ++v) {
+        bounding_box_.expandBy(math::vec3{dynamic_geometry_ptr_->positions[v]});
       }
     }
   //}
@@ -67,8 +67,8 @@ void DynamicGeometryResource::compute_bounding_box() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-DynamicGeometryResource::DynamicGeometryResource(DynamicGeometry const& dynamic_geometry, bool build_kd_tree)
-    : kd_tree_(), dynamic_geometry_(dynamic_geometry), clean_flags_per_context_() {
+DynamicGeometryResource::DynamicGeometryResource(std::shared_ptr<DynamicGeometry> dynamic_geometry_ptr, bool build_kd_tree, scm::gl::primitive_topology vertex_rendering_mode)
+    : kd_tree_(), dynamic_geometry_ptr_(dynamic_geometry_ptr), vertex_rendering_mode_(vertex_rendering_mode), clean_flags_per_context_() {
     
   compute_bounding_box();
 
@@ -88,8 +88,9 @@ void DynamicGeometryResource::upload_to(RenderContext& ctx) const {
     return;
   }
 */
- 
-  auto dynamic_geometry_iterator = ctx.dynamic_geometries.find(uuid());
+  auto dynamic_geometry_iterator =ctx.dynamic_geometries.find(uuid());
+  // auto dynamic_geometry_iterator = std::dynamic_pointer_cast<DynamicGeometry>(ctx.dynamic_geometries.find(uuid()));
+  //auto dynamic_geometry_iterator = std::dynamic_pointer_cast<DynamicGeometry>(ctx.dynamic_geometries.find(uuid());
 
   bool update_cached_dynamic_geometry{false};
 
@@ -105,37 +106,38 @@ void DynamicGeometryResource::upload_to(RenderContext& ctx) const {
 
                                             // = mode_;
   //dynamic_geometry_to_update_ptr->vertex_topology = scm::gl::PRIMITIVE_LINE_LIST;
-  dynamic_geometry_to_update_ptr->vertex_topology = scm::gl::PRIMITIVE_TRIANGLE_LIST;
-  dynamic_geometry_to_update_ptr->vertex_reservoir_size = dynamic_geometry_.vertex_reservoir_size;
-  dynamic_geometry_to_update_ptr->num_occupied_vertex_slots = dynamic_geometry_.num_occupied_vertex_slots;
+  // dynamic_geometry_to_update_ptr->vertex_topology = scm::gl::PRIMITIVE_TRIANGLE_LIST;
+  dynamic_geometry_to_update_ptr->vertex_topology = vertex_rendering_mode_;
+  dynamic_geometry_to_update_ptr->vertex_reservoir_size = dynamic_geometry_ptr_->vertex_reservoir_size;
+  dynamic_geometry_to_update_ptr->num_occupied_vertex_slots = dynamic_geometry_ptr_->num_occupied_vertex_slots;
 
-  if(dynamic_geometry_to_update_ptr->current_buffer_size_in_vertices < dynamic_geometry_.vertex_reservoir_size+3) {
+  if(dynamic_geometry_to_update_ptr->current_buffer_size_in_vertices < dynamic_geometry_ptr_->vertex_reservoir_size) {
     dynamic_geometry_to_update_ptr->vertices =
         ctx.render_device->create_buffer(scm::gl::BIND_VERTEX_BUFFER,
                                          scm::gl::USAGE_DYNAMIC_DRAW,
-                                         (dynamic_geometry_.vertex_reservoir_size+3) * sizeof(DynamicGeometry::Vertex),
+                                         (dynamic_geometry_ptr_->vertex_reservoir_size) * sizeof(DynamicGeometry::Vertex),
                                          0);
 
-    dynamic_geometry_to_update_ptr->current_buffer_size_in_vertices = dynamic_geometry_.vertex_reservoir_size+3;
+    dynamic_geometry_to_update_ptr->current_buffer_size_in_vertices = dynamic_geometry_ptr_->vertex_reservoir_size;
   } else {
     update_cached_dynamic_geometry = true;
   }
 
-  if(dynamic_geometry_.vertex_reservoir_size != 0) {
+  if(dynamic_geometry_ptr_->vertex_reservoir_size != 0) {
     DynamicGeometry::Vertex* data(static_cast<DynamicGeometry::Vertex*>(ctx.render_context->map_buffer(
       dynamic_geometry_to_update_ptr->vertices, scm::gl::ACCESS_WRITE_INVALIDATE_BUFFER)));
 
-    dynamic_geometry_.copy_to_buffer(data);
+    dynamic_geometry_ptr_->copy_to_buffer(data);
     ctx.render_context->unmap_buffer(dynamic_geometry_to_update_ptr->vertices);
   
     dynamic_geometry_to_update_ptr->vertex_array = ctx.render_device->create_vertex_array(
-         dynamic_geometry_.get_vertex_format(),
+         dynamic_geometry_ptr_->get_vertex_format(),
           {dynamic_geometry_to_update_ptr->vertices});
 
   }
   
   ctx.render_context->apply();
-}
+} 
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -178,21 +180,21 @@ void DynamicGeometryResource::make_clean_flags_dirty() {
 
 void DynamicGeometryResource::compute_consistent_normals() const {
   std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-  dynamic_geometry_.compute_consistent_normals();
+  dynamic_geometry_ptr_->compute_consistent_normals();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void DynamicGeometryResource::compile_buffer_string(std::string& buffer_string) {
   std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-  dynamic_geometry_.compile_buffer_string(buffer_string);
+  dynamic_geometry_ptr_->compile_buffer_string(buffer_string);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void DynamicGeometryResource::uncompile_buffer_string(std::string const& buffer_string) {
   std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-  dynamic_geometry_.uncompile_buffer_string(buffer_string);
+  dynamic_geometry_ptr_->uncompile_buffer_string(buffer_string);
   make_clean_flags_dirty();
 };
 
@@ -202,9 +204,9 @@ void DynamicGeometryResource::uncompile_buffer_string(std::string const& buffer_
 void DynamicGeometryResource::push_vertex(DynamicGeometry::Vertex const& in_vertex) {
   std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
 
-  if(dynamic_geometry_.push_vertex(in_vertex)) {
-    if (dynamic_geometry_.num_occupied_vertex_slots > 0) {
-        bounding_box_.expandBy(math::vec3{dynamic_geometry_.positions[dynamic_geometry_.num_occupied_vertex_slots-1]});
+  if(dynamic_geometry_ptr_->push_vertex(in_vertex)) {
+    if (dynamic_geometry_ptr_->num_occupied_vertex_slots > 0) {
+        bounding_box_.expandBy(math::vec3{dynamic_geometry_ptr_->positions[dynamic_geometry_ptr_->num_occupied_vertex_slots-1]});
     }
     make_clean_flags_dirty();
   }
@@ -215,7 +217,7 @@ void DynamicGeometryResource::push_vertex(DynamicGeometry::Vertex const& in_vert
 
 void DynamicGeometryResource::pop_front_vertex() {
   std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-  if(dynamic_geometry_.pop_front_vertex()){
+  if(dynamic_geometry_ptr_->pop_front_vertex()){
     compute_bounding_box();
     make_clean_flags_dirty();
   }
@@ -225,7 +227,7 @@ void DynamicGeometryResource::pop_front_vertex() {
 
 void DynamicGeometryResource::pop_back_vertex() {
   std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-  if(dynamic_geometry_.pop_back_vertex()){
+  if(dynamic_geometry_ptr_->pop_back_vertex()){
     compute_bounding_box();
     make_clean_flags_dirty();
   }
@@ -235,7 +237,7 @@ void DynamicGeometryResource::pop_back_vertex() {
 
 void DynamicGeometryResource::clear_vertices() {
   std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-  if(dynamic_geometry_.clear_vertices()) {
+  if(dynamic_geometry_ptr_->clear_vertices()) {
     compute_bounding_box();
     make_clean_flags_dirty();
   }
@@ -254,7 +256,7 @@ void DynamicGeometryResource::forward_queued_vertices(std::vector<scm::math::vec
                                                 //std::vector<scm::math::vec3f> const& queued_normals
                                                 ) {
   std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-  dynamic_geometry_.forward_queued_vertices(queued_positions,
+  dynamic_geometry_ptr_->forward_queued_vertices(queued_positions,
                                       queued_colors,
                                       queued_thicknesses//,
                                       //queued_normals
@@ -267,7 +269,7 @@ void DynamicGeometryResource::forward_queued_vertices(std::vector<scm::math::vec
 
 math::vec3 DynamicGeometryResource::get_vertex(unsigned int i) const {
   return math::vec3(
-      dynamic_geometry_.positions[i].x, dynamic_geometry_.positions[i].y, dynamic_geometry_.positions[i].z);
+      dynamic_geometry_ptr_->positions[i].x, dynamic_geometry_ptr_->positions[i].y, dynamic_geometry_ptr_->positions[i].z);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

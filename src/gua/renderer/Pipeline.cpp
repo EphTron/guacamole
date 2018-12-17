@@ -114,7 +114,6 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
     }
     context_.render_pipelines[cam.uuid]->render_scene(mode, cam, scene_graphs);
   }
-
   // recreate gbuffer if resolution changed
   if (last_resolution_ != camera.config.get_resolution()) {
     last_resolution_ = camera.config.get_resolution();
@@ -185,7 +184,6 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
   }
 
   context_.mode = mode;
-
   // serialize this scenegraph
   current_viewstate_.scene = current_viewstate_.graph->serialize(camera, mode);
   current_viewstate_.frustum = current_viewstate_.scene->rendering_frustum;
@@ -202,6 +200,7 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
   gbuffer_->clear(context_, 1.f, 1);
   current_viewstate_.target = gbuffer_.get();
 
+
   // process all passes
   for (unsigned i(0); i < passes_.size(); ++i) {
     if (passes_[i].needs_color_buffer_as_input()) {
@@ -209,11 +208,11 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
     }
     passes_[i].process(*last_description_.get_passes()[i], *this);
   }
-
 #ifdef GUACAMOLE_ENABLE_PIPELINE_PASS_TIME_QUERIES
   fetch_gpu_query_results(context_);
 
-  if (context_.framecount % 60 == 0) {
+  // if (context_.framecount % 60 == 0) {
+  if (0) {
     std::cout << "===== Time Queries for Context: " << context_.id
               << " ============================" << std::endl;
     for (auto const& t : queries_.results) {
@@ -224,7 +223,6 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
               << std::endl;
   }
 #endif
-
   gbuffer_->toggle_ping_pong();
 
   // add texture to texture database
@@ -243,7 +241,7 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
       context_.textures[dummy_tex->uuid()] = RenderContext::Texture{depth_tex, gbuffer_->get_sampler_state()};
     }
   }
-
+  
   return color_tex;
 }
 

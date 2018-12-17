@@ -58,7 +58,7 @@ class DynamicGeometryResource : public GeometryResource {
    *
    * Creates a new and empty DynamicGeometryResource.
    */
-   DynamicGeometryResource();
+   DynamicGeometryResource(scm::gl::primitive_topology vertex_rendering_mode);
 
   /**
    * Constructor from an *.lob strip.
@@ -67,7 +67,9 @@ class DynamicGeometryResource : public GeometryResource {
    *
    * \param mesh             The dynamic geometry to load the data from.
    */
-   DynamicGeometryResource(DynamicGeometry const& dynamic_geometry, bool build_kd_tree);
+   DynamicGeometryResource(std::shared_ptr<DynamicGeometry> dynamic_geometry_ptr, bool build_kd_tree, scm::gl::primitive_topology vertex_rendering_mode);
+
+   //TODO conrstuct with
 
   /**
    * Draws the dynamic geometry.
@@ -88,8 +90,8 @@ class DynamicGeometryResource : public GeometryResource {
 
   void compute_bounding_box();
 
-  inline unsigned int num_occupied_vertex_slots() const { return dynamic_geometry_.num_occupied_vertex_slots; }
-  inline unsigned int vertex_reservoir_size() const { return dynamic_geometry_.vertex_reservoir_size; }
+  inline unsigned int num_occupied_vertex_slots() const { return dynamic_geometry_ptr_->num_occupied_vertex_slots; }
+  inline unsigned int vertex_reservoir_size() const { return dynamic_geometry_ptr_->vertex_reservoir_size; }
   
   void compute_consistent_normals() const;
 
@@ -113,20 +115,27 @@ class DynamicGeometryResource : public GeometryResource {
 
   math::vec3 get_vertex(unsigned int i) const;
 
- private:
-
-  void upload_to(RenderContext& context) const;
-
-  KDTree kd_tree_;
-  DynamicGeometry dynamic_geometry_;
-
-  // ephra
-  scm::gl::primitive_topology vertex_rendering_mode_; //= scm::gl::PRIMITIVE_LINE_STRIP_ADJACENCY;
+ protected:
+    KDTree kd_tree_;
+    mutable std::mutex dynamic_geometry_update_mutex_;
+    scm::gl::primitive_topology vertex_rendering_mode_; //= scm::gl::PRIMITIVE_LINE_STRIP_ADJACENCY;
   //  alternativ muss es zu scm::gl::PRIMITIVE_LINE_LIST gesetzt werde koennen
 
 
-  mutable std::mutex dynamic_geometry_update_mutex_;
+
   mutable std::map<unsigned, bool> clean_flags_per_context_;
+  std::shared_ptr<DynamicGeometry> dynamic_geometry_ptr_;
+ private:
+
+
+
+  virtual void upload_to(RenderContext& context) const;
+
+  
+  
+
+  // ephra
+  
 
   //std::vector<dynamic_geometry_update_job*> dynamic_geometry_update_queue_;
 

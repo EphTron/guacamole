@@ -117,7 +117,7 @@ public : // methods
 
   void clear_vertices();
 
-  void forward_queued_vertices();
+  virtual void forward_queued_vertices();
 
   void compile_buffer_string(std::string& buffer_string);
   void uncompile_buffer_string(std::string const& buffer_string);
@@ -137,7 +137,7 @@ public : // methods
 
   void update_cache() override;
 
-  std::shared_ptr<DynamicGeometryResource> const& get_geometry() const;
+  virtual std::shared_ptr<DynamicGeometryResource> const& get_geometry() const;
 
   bool get_trigger_update() const {return trigger_update_;}
   void set_trigger_update(bool trigger_update) {trigger_update_ = trigger_update;}
@@ -155,7 +155,8 @@ public : // methods
  protected:
 
   virtual std::shared_ptr<Node> copy() const=0;
-
+  //virtual void set_geometry(std::shared_ptr<DynamicGeometryResource> res);
+  
   // std::shared_ptr<DynamicGeometryResource> geometry_;
   std::string                       geometry_description_;
   bool                              geometry_changed_;
@@ -165,17 +166,9 @@ public : // methods
   std::vector<scm::math::vec3f> queued_positions_;
   std::vector<scm::math::vec4f> queued_colors_;
   std::vector<float> queued_thicknesses_;
-
- private: //methods
-
-  virtual void update_geometry_cache(::gua::GeometryDescription const& desc) =0; 
-
- private:  // attributes e.g. special attributes for drawing
-
   std::shared_ptr<DynamicGeometryResource> geometry_;
-  // std::string                        geometry_description_;
-  // bool                               geometry_changed_;
 
+  
   std::shared_ptr<Material>         material_;
   bool                              render_to_gbuffer_;
   bool                              render_to_stencil_buffer_;
@@ -185,6 +178,17 @@ public : // methods
 
   float                             screen_space_line_width_;
   float                             screen_space_point_size_;
+
+ private: //methods
+
+  virtual void update_geometry_cache(::gua::GeometryDescription const& desc) =0; 
+
+
+ private:  // attributes e.g. special attributes for drawing
+
+  // std::string                        geometry_description_;
+  // bool                               geometry_changed_;
+
 
   // bool                              was_created_empty_;
 

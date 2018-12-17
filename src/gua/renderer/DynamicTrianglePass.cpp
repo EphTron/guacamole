@@ -70,11 +70,11 @@ PipelinePass DynamicTrianglePassDescription::make_pass(RenderContext const& ctx,
   PipelinePass pass{*this, ctx, substitution_map};
 
   auto renderer = std::make_shared<DynamicTriangleRenderer>(ctx, substitution_map);
-
   pass.process_ = [renderer](
     PipelinePass& pass, PipelinePassDescription const& desc, Pipeline & pipe) {
-
+    
     pipe.get_context().render_context->set_depth_stencil_state(pass.depth_stencil_state_, 1);
+    
     renderer->render(pipe, desc);
   };
 

@@ -86,7 +86,6 @@ struct GUA_DLL DynamicGeometry {
     scm::math::vec3f pos;
     scm::math::vec4f col;
     float            thick;
-    // scm::math::vec3f nor;
   };
 
   void compute_consistent_normals() const;
@@ -95,9 +94,9 @@ struct GUA_DLL DynamicGeometry {
   void uncompile_buffer_string(std::string const& buffer_string);
 
   bool push_vertex(Vertex const& v_to_push);
-  bool pop_back_vertex();
-  bool pop_front_vertex();
-  bool clear_vertices();
+  virtual bool pop_back_vertex();
+  virtual bool pop_front_vertex();
+  virtual bool clear_vertices();
 
   void forward_queued_vertices(std::vector<scm::math::vec3f> const& queued_positions,
                                std::vector<scm::math::vec4f> const& queued_colors,

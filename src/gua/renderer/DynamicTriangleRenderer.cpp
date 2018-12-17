@@ -148,44 +148,41 @@ void DynamicTriangleRenderer::render(Pipeline& pipe, PipelinePassDescription con
 
       //select the material shader maps belonging to the current visualization mode:
         //non volumetric line strips and points share the same shader
-        if( !dynamic_triangle_node->get_render_volumetric() ) {
-          current_material_shader_map = &programs_;
-          current_shader_stages = &program_stages_;
-        } else {
-          //volumetric point rendering
-          if(dynamic_triangle_node->get_render_vertices_as_points()) {
-            current_material_shader_map = &volumetric_point_programs_;
-            current_shader_stages = &volumetric_point_program_stages_;
-          } else { //volumetric 
-            current_material_shader_map = &volumetric_line_programs_;
-            current_shader_stages = &volumetric_line_program_stages_;
-          }
-        }
+      if( !dynamic_triangle_node->get_render_volumetric() ) {
+        current_material_shader_map = &programs_;
+        current_shader_stages = &program_stages_;
+      } 
 
-        if (current_material_shader != dynamic_triangle_node->get_material()->get_shader()) {
-          current_material_shader = dynamic_triangle_node->get_material()->get_shader();
-          if (current_material_shader) {
+      if (current_material_shader != dynamic_triangle_node->get_material()->get_shader()) {
+        current_material_shader = dynamic_triangle_node->get_material()->get_shader();
+        if (current_material_shader) {
 
-            auto shader_iterator = current_material_shader_map->find(current_material_shader);
-            if (shader_iterator != current_material_shader_map->end())
-            {
-              current_shader_program = shader_iterator->second;
-            }
-            else {
-              auto smap = global_substitution_map_;
-              for (const auto& i: current_material_shader->generate_substitution_map())
-                smap[i.first] = i.second;
-
-              current_shader_program = std::make_shared<ShaderProgram>();
-              current_shader_program->set_shaders(*current_shader_stages, std::list<std::string>(), false, smap);
-              (*current_material_shader_map)[current_material_shader] = current_shader_program;
-            }
+          auto shader_iterator = current_material_shader_map->find(current_material_shader);
+          if (shader_iterator != current_material_shader_map->end())
+          {
+            current_shader_program = shader_iterator->second;
           }
           else {
-            Logger::LOG_WARNING << "DynamicTrianglePass::process(): Cannot find material: "
-                                << dynamic_triangle_node->get_material()->get_shader_name() << std::endl;
+            auto smap = global_substitution_map_;
+            for (const auto& i: current_material_shader->generate_substitution_map())
+              smap[i.first] = i.second;
+
+            current_shader_program = std::make_shared<ShaderProgram>();
+
+
+#ifndef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
+            current_shader_program->set_shaders(program_stages_, std::list<std::string>(), false, smap);
+#else
+            bool virtual_texturing_enabled = dynamic_triangle_node->get_material()->get_enable_virtual_texturing();
+            current_shader_program->set_shaders(program_stages_, std::list<std::string>(), false, smap, virtual_texturing_enabled);            
+#endif
+            (*current_material_shader_map)[current_material_shader] = current_shader_program;
           }
-        //}
+        }
+        else {
+          Logger::LOG_WARNING << "DynamicTrianglePass::process(): Cannot find material: "
+                              << dynamic_triangle_node->get_material()->get_shader_name() << std::endl;
+        }
 
         if (current_shader_program) {
           current_shader_program->use(ctx);
@@ -199,10 +196,8 @@ void DynamicTriangleRenderer::render(Pipeline& pipe, PipelinePassDescription con
                                         "gua_gbuffer_depth");
         }
       }
-      std::cout<<"getting geometry"<< std::endl;
-      if (current_shader_program && dynamic_triangle_node->get_geometry())
-      {
-        std::cout<<"got geometry"<< std::endl;
+
+      if (current_shader_program && dynamic_triangle_node->get_geometry()) {
         auto model_view_mat = scene.rendering_frustum.get_view() * dynamic_triangle_node->get_cached_world_transform();
         UniformValue normal_mat (math::mat4f(scm::math::transpose(scm::math::inverse(dynamic_triangle_node->get_cached_world_transform()))));
 
@@ -245,19 +240,17 @@ void DynamicTriangleRenderer::render(Pipeline& pipe, PipelinePassDescription con
         }
 
         ctx.render_context->apply_program();
-        std::cout<<"draw call from renderer"<< std::endl;
         dynamic_triangle_node->get_geometry()->draw(pipe.get_context());
+        
       }
     }
-
     target.unbind(ctx);
-
+    
     pipe.end_gpu_query(ctx, gpu_query_name);
     pipe.end_cpu_query(cpu_query_name);
 
     ctx.render_context->reset_state_objects();
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

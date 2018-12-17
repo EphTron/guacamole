@@ -256,11 +256,10 @@ bool DynamicGeometry::pop_back_vertex() {
 
 bool DynamicGeometry::clear_vertices() {
 
-  if(!num_occupied_vertex_slots == 0) {
+  if(num_occupied_vertex_slots != 0) {
     positions.clear();
     colors.clear();
     thicknesses.clear();
-    //normals.clear();
 
     num_occupied_vertex_slots = 0;
 
@@ -278,7 +277,7 @@ void DynamicGeometry::forward_queued_vertices(std::vector<scm::math::vec3f> cons
   colors         = queued_colors;
   thicknesses    = queued_thicknesses;
   //normals        = queued_normals;
-
+  
   num_occupied_vertex_slots = positions.size();
 
   if(num_occupied_vertex_slots > vertex_reservoir_size) {
@@ -288,7 +287,7 @@ void DynamicGeometry::forward_queued_vertices(std::vector<scm::math::vec3f> cons
 }
 
 void DynamicGeometry::copy_to_buffer(Vertex* vertex_buffer)  const {
-
+  std::cout<< "############# BASE CLASS out" << std::endl;
   for (int vertex_id(0); vertex_id < num_occupied_vertex_slots; ++vertex_id) {
     vertex_buffer[vertex_id].pos = positions[vertex_id];
     vertex_buffer[vertex_id].col = colors[vertex_id];

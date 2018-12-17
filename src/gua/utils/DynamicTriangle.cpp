@@ -16,9 +16,8 @@ namespace gua {
 
 DynamicTriangle::
 DynamicTriangle(unsigned int intitial_geometry_buffer_size) : 
-  DynamicGeometry::DynamicGeometry(intitial_geometry_buffer_size),
-  vertex_reservoir_size(intitial_geometry_buffer_size),
-  num_occupied_vertex_slots() {
+  DynamicGeometry::DynamicGeometry(intitial_geometry_buffer_size)
+  {
     uvs.resize(vertex_reservoir_size);
 }
 
@@ -217,6 +216,20 @@ bool DynamicTriangle::push_vertex(TriVertex const& v_to_push) {
  return true;
 }
 
+bool DynamicTriangle::update_vertex(int vertex_idx, TriVertex const& v_to_update){
+
+  if (vertex_idx < positions.size()){
+    positions[vertex_idx] = v_to_update.pos;
+    colors[vertex_idx] = v_to_update.col;
+    thicknesses[vertex_idx] = v_to_update.thick;
+    uvs[vertex_idx] = v_to_update.uv;
+
+    return true;
+  } else {
+    return false;
+  }
+}
+
 bool DynamicTriangle::pop_front_vertex() {
 
   if(num_occupied_vertex_slots < 2) {
@@ -251,38 +264,24 @@ bool DynamicTriangle::pop_back_vertex() {
 
 bool DynamicTriangle::clear_vertices() {
 
-  if(!num_occupied_vertex_slots == 0) {
-    positions.clear();
-    colors.clear();
-    thicknesses.clear();
+  if(num_occupied_vertex_slots != 0) {
     uvs.clear();
-
-    num_occupied_vertex_slots = 0;
-
-    return true;
   }
-  return false;
+
+  return DynamicGeometry::clear_vertices();
 }
 
 void DynamicTriangle::forward_queued_vertices(std::vector<scm::math::vec3f> const& queued_positions,
                                         std::vector<scm::math::vec4f> const& queued_colors,
                                         std::vector<float> const& queued_thicknesses,
                                         std::vector<scm::math::vec2f> const& queued_uvs) {
-  positions      = queued_positions;
-  colors         = queued_colors;
-  thicknesses    = queued_thicknesses;
+  std::cout<< "############# FORWARDING "<< queued_uvs.size() <<std::endl;
   uvs            = queued_uvs;
 
-  num_occupied_vertex_slots = positions.size();
-
-  if(num_occupied_vertex_slots > vertex_reservoir_size) {
-    vertex_reservoir_size = num_occupied_vertex_slots;
-  }
-
+  DynamicGeometry::forward_queued_vertices(queued_positions,queued_colors,queued_thicknesses);
 }
 
 void DynamicTriangle::copy_to_buffer(TriVertex* vertex_buffer)  const {
-
   for (int vertex_id(0); vertex_id < num_occupied_vertex_slots; ++vertex_id) {
     vertex_buffer[vertex_id].pos = positions[vertex_id];
     vertex_buffer[vertex_id].col = colors[vertex_id];
@@ -294,10 +293,10 @@ void DynamicTriangle::copy_to_buffer(TriVertex* vertex_buffer)  const {
 
 scm::gl::vertex_format DynamicTriangle::get_vertex_format() const {
   return scm::gl::vertex_format(
-    0, 0, scm::gl::TYPE_VEC3F, sizeof(Vertex))(
-    0, 1, scm::gl::TYPE_VEC4F, sizeof(Vertex))(
-    0, 2, scm::gl::TYPE_FLOAT, sizeof(Vertex))(
-    0, 3, scm::gl::TYPE_VEC2F, sizeof(Vertex));
+    0, 0, scm::gl::TYPE_VEC3F, sizeof(TriVertex))(
+    0, 1, scm::gl::TYPE_VEC4F, sizeof(TriVertex))(
+    0, 2, scm::gl::TYPE_FLOAT, sizeof(TriVertex))(
+    0, 3, scm::gl::TYPE_VEC2F, sizeof(TriVertex));
 }
 
 } // namespace gua

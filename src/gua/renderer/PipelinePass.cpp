@@ -79,13 +79,13 @@ PipelinePass::PipelinePass(PipelinePassDescription const& d,
 }
 
 void PipelinePass::process(PipelinePassDescription const& desc, Pipeline& pipe) {
-
   auto const& ctx(pipe.get_context());
 
   if (desc.recompile_shaders_) {
     upload_program(desc, ctx);
     desc.recompile_shaders_ = false;
   }
+  
 
   if (RenderMode::Custom == rendermode_) {
     process_(*this, desc, pipe);
@@ -112,12 +112,12 @@ void PipelinePass::process(PipelinePassDescription const& desc, Pipeline& pipe) 
     std::string gpu_query_name = "GPU: Camera uuid: " + std::to_string(pipe.current_viewstate().viewpoint_uuid) + " / " + name_;
     pipe.begin_gpu_query(ctx, gpu_query_name);
 
+
     if (RenderMode::Callback == rendermode_) {
       process_(*this, desc, pipe);
     } else { // RenderMode::Quad
       pipe.draw_quad();
     }
-
     pipe.end_gpu_query(ctx, gpu_query_name);
 
     target.unbind(ctx);

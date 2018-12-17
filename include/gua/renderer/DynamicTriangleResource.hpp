@@ -68,7 +68,7 @@ class DynamicTriangleResource : public DynamicGeometryResource {
    *
    * \param mesh             The dynamic geometry to load the data from.
    */
-   DynamicTriangleResource(DynamicTriangle const& dynamic_triangle, bool build_kd_tree);
+   DynamicTriangleResource(std::shared_ptr<DynamicGeometry> dynamic_geometry_ptr, bool build_kd_tree);
 
   /**
    * Draws the dynamic geometry.
@@ -87,14 +87,14 @@ class DynamicTriangleResource : public DynamicGeometryResource {
   void ray_test(Ray const& ray, int options,
                 node::Node* owner, std::set<PickResult>& hits) override;
 
+  float intersect(std::array<math::vec3, 3> const& points, Ray const& ray) const;
+
+
   //void resolve_vertex_updates(RenderContext& ctx);
 
   void make_clean_flags_dirty();
 
   void compute_bounding_box();
-
-  inline unsigned int num_occupied_vertex_slots() const { return dynamic_triangle_.num_occupied_vertex_slots; }
-  inline unsigned int vertex_reservoir_size() const { return dynamic_triangle_.vertex_reservoir_size; }
   
   void compute_consistent_normals() const;
 
@@ -102,10 +102,7 @@ class DynamicTriangleResource : public DynamicGeometryResource {
   void uncompile_buffer_string(std::string const& buffer_string);
 
   void push_vertex(DynamicTriangle::TriVertex const& in_vertex);
-  void pop_front_vertex();
-  void pop_back_vertex();
-
-  void clear_vertices();
+  void update_vertex(int vertex_idx, DynamicTriangle::TriVertex const& in_vertex);
 
   //ephra
   void set_vertex_rendering_mode(scm::gl::primitive_topology const& render_mode);
@@ -120,19 +117,6 @@ class DynamicTriangleResource : public DynamicGeometryResource {
  private:
 
   void upload_to(RenderContext& context) const;
-
-  KDTree kd_tree_;
-  DynamicTriangle dynamic_triangle_;
-
-  // ephra
-  scm::gl::primitive_topology vertex_rendering_mode_; //= scm::gl::PRIMITIVE_LINE_STRIP_ADJACENCY;
-  //  alternativ muss es zu scm::gl::PRIMITIVE_LINE_LIST gesetzt werde koennen
-
-
-  mutable std::mutex dynamic_triangle_update_mutex_;
-  mutable std::map<unsigned, bool> clean_flags_per_context_;
-
-  //std::vector<dynamic_triangle_update_job*> dynamic_triangle_update_queue_;
 
 };
 

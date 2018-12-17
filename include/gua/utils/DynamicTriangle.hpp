@@ -88,9 +88,11 @@ struct GUA_DLL DynamicTriangle : DynamicGeometry{
   void uncompile_buffer_string(std::string const& buffer_string);
 
   bool push_vertex(TriVertex const& v_to_push);
-  bool pop_back_vertex();
-  bool pop_front_vertex();
-  bool clear_vertices();
+  bool update_vertex(int vertex_idx, TriVertex const& v_to_update);
+  
+  bool pop_back_vertex() override;
+  bool pop_front_vertex() override;
+  bool clear_vertices() override;
 
   void forward_queued_vertices(std::vector<scm::math::vec3f> const& queued_positions,
                                std::vector<scm::math::vec4f> const& queued_colors,
@@ -108,14 +110,9 @@ struct GUA_DLL DynamicTriangle : DynamicGeometry{
    * @brief returns vertex layout for mesh vertex
    * @return schism vertex format
    */
-  virtual scm::gl::vertex_format get_vertex_format() const;
+  scm::gl::vertex_format get_vertex_format() const override;
 
   mutable std::vector<scm::math::vec2f> uvs;
-
-  int vertex_reservoir_size;
-  int num_occupied_vertex_slots;
-
-  std::map<unsigned, bool> gpu_dirty_flags_per_context_;
 
 protected:
   void enlarge_reservoirs();

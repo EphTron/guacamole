@@ -54,10 +54,11 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load_geometry(
     std::string const& file_name,
     unsigned flags,
     bool create_empty) {
+  std::cout<<"2.1 ay"<< std::endl;
   std::shared_ptr<node::Node> cached_node;
   std::string key(file_name + "_" + string_utils::to_string(flags));
   auto searched(loaded_files_.find(key));
-
+  std::cout<<"2.5 ay"<< std::endl;
   if (searched != loaded_files_.end()) {
     cached_node = searched->second;
   } else {
@@ -68,8 +69,9 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load_geometry(
     if (topology_type) {
       bool create_geometries = (topology_type == 1);
       cached_node = load(file_name, flags, create_geometries, create_empty);
-      cached_node->update_cache();
 
+      cached_node->update_cache();
+      //std::cout << "" << static_cast<std::shared_ptr<DynamicGeometryNode>>(cached_node)->get_geometry() << std::endl;
       loaded_files_.insert(std::make_pair(key, cached_node));
 
       // normalize mesh position and rotation
@@ -97,51 +99,11 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load_geometry(
     }
   }
 
+  std::cout<<"3 ay"<< std::endl;
+
   return cached_node;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-std::shared_ptr<node::Node> DynamicGeometryLoader::create_geometry_from_file(
-    std::string const& node_name,
-    std::string const& file_name,
-    std::shared_ptr<Material> const& fallback_material,
-    unsigned flags) {
-  auto cached_node(load_geometry(file_name, flags));
-
-  if (cached_node) {
-    auto copy(cached_node->deep_copy());
-    apply_fallback_material(copy, fallback_material, flags & NO_SHARED_MATERIALS);
-
-    copy->set_name(node_name);
-    return copy;
-  }
-
-  return std::make_shared<node::TransformNode>(node_name);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::shared_ptr<node::Node> DynamicGeometryLoader::create_geometry_from_file(
-    std::string const& node_name,
-    std::string const& file_name,
-    unsigned flags) {
-  auto cached_node(load_geometry(file_name, flags));
-
-  if (cached_node) {
-    auto copy(cached_node->deep_copy());
-
-    auto shader(gua::MaterialShaderDatabase::instance()->lookup(
-        "gua_default_material"));
-    apply_fallback_material(
-        copy, shader->make_new_material(), flags & NO_SHARED_MATERIALS);
-
-    copy->set_name(node_name);
-    return copy;
-  }
-
-  return std::make_shared<node::TransformNode>(node_name);
-}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -149,6 +111,7 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::create_empty_geometry(std::st
                                                   std::string const& empty_name,
                                                   std::shared_ptr<Material> const& fallback_material,
                                                   unsigned flags) {
+  std::cout << "Create empty geometry with material " << std::endl;
   auto cached_node(load_geometry(empty_name, flags, true));
 
   if (cached_node) {
@@ -170,6 +133,7 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::create_empty_geometry(std::st
 std::shared_ptr<node::Node> DynamicGeometryLoader::create_empty_geometry(std::string const& node_name,
                                                   std::string const& empty_name,
                                                   unsigned flags) {
+  std::cout << "Create empty geometry " << std::endl;
   auto cached_node(load_geometry(empty_name, flags, true));
 
   if (cached_node) {
@@ -181,6 +145,7 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::create_empty_geometry(std::st
         copy, shader->make_new_material(), flags & NO_SHARED_MATERIALS);
 
     copy->set_name(node_name);
+    std::cout << "Created empty geometry - RETRUNING " << std::endl;
     return copy;
   }
 
@@ -200,16 +165,10 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load(
 
   if (file.is_valid() || create_empty) {
 
-      
     auto importer = std::make_shared<DynamicGeometryImporter>();
     
-
-    if(!create_empty) {
-      //importer->read_file(file_name);
-    } else {
-      importer->create_empty_dynamic_geometry(file_name);
-    }
-
+    importer->create_empty_dynamic_geometry(file_name);
+    
     if(importer->parsing_successful()) {
       std::cout << "Successfully parsed lob object\n";
     } else {
@@ -218,34 +177,29 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load(
 
     uint32_t dynamic_geometry_count = 0;
     // creates a geometry node and returns it
-    auto load_geometry = [&](int obj_idx) {
+    auto load_geometry = [&]() {
       GeometryDescription desc("DynamicGeometry", file_name, dynamic_geometry_count++, flags);
 
       std::shared_ptr<node::DynamicGeometryNode> node_to_return = create_geometry_instance(importer, desc, flags);
       
-
       if(create_geometries) {
         node_to_return->set_render_vertices_as_points(false);
         //node_to_return->set_render_volumetric(false);
         node_to_return->set_render_volumetric(false);
       }
-
+      // std::cout<<"node to return"<<node_to_return->get_geometry()<<std::endl;
       return node_to_return;
     };
 
+    std::cout<<"1 ay"<< dynamic_geometry_count<<std::endl;
+    
     // there is only one geometry --- return it!
     if (importer->num_parsed_dynamic_geometries() == 1) {
-      return load_geometry(0);
+
+      //std::cout<<"show geo " << load_geometry() << " " << load_geometry()->get_geometry_description()<<std::endl;
+      std::cout<<"2 ay"<< importer->num_parsed_dynamic_geometries() <<std::endl;
+      return load_geometry();
     }
-
-    // else: there are multiple children and meshes
-    auto group(std::make_shared<node::TransformNode>());
-
-    for (int geo_obj_idx(0); geo_obj_idx < importer->num_parsed_dynamic_geometries(); ++geo_obj_idx) {
-      group->add_child(load_geometry(geo_obj_idx));
-    }
-
-    return group;
   }
 
   Logger::LOG_WARNING << "Failed to load object \"" << file_name

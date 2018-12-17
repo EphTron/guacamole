@@ -80,19 +80,9 @@ public:
    /**
    *
    */
-   std::shared_ptr<node::Node> load_geometry(std::string const& file_name, unsigned flags = DEFAULTS, bool create_empty = false);
-
-   /**
-   *
-   */
-   std::shared_ptr<node::Node> create_geometry_from_file(std::string const& node_name,
-                                                   std::string const& file_name,
-                                                   std::shared_ptr<Material> const& fallback_material,
-                                                   unsigned flags = DEFAULTS);
-
-   std::shared_ptr<node::Node> create_geometry_from_file(std::string const& node_name,
-                                                   std::string const& file_name,
-                                                   unsigned flags = DEFAULTS);
+   std::shared_ptr<node::Node> load_geometry(std::string const& file_name,
+                                             unsigned flags = DEFAULTS,
+                                             bool create_empty = false);
 
    /**
    *

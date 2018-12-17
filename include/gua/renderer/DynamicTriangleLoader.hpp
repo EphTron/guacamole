@@ -74,53 +74,6 @@ public:
    */
    DynamicTriangleLoader();
 
-   /**
-   *
-   */
-   std::shared_ptr<node::Node> load_geometry(std::string const& file_name, unsigned flags = DEFAULTS, bool create_empty = false);
-
-   /**
-   *
-   */
-   std::shared_ptr<node::Node> create_geometry_from_file(std::string const& node_name,
-                                                   std::string const& file_name,
-                                                   std::shared_ptr<Material> const& fallback_material,
-                                                   unsigned flags = DEFAULTS);
-
-   std::shared_ptr<node::Node> create_geometry_from_file(std::string const& node_name,
-                                                   std::string const& file_name,
-                                                   unsigned flags = DEFAULTS);
-
-   /**
-   *
-   */
-   std::shared_ptr<node::Node> create_empty_geometry(std::string const& node_name,
-                                                    std::string const& empty_name,
-                                                    std::shared_ptr<Material> const& fallback_material,
-                                                    unsigned flags = DEFAULTS);
-
-   /**
-   *
-   */
-   std::shared_ptr<node::Node> create_empty_geometry(std::string const& node_name,
-                                                    std::string const& empty_name,
-                                                    unsigned flags = DEFAULTS);
-
-  /**
-   * Constructor from memory buffer.
-   *
-   * Creates a new DynamicTriangleLoader from a existing memory buffer.
-   *
-   * \param buffer_name      The buffer to load the meh's data from.
-   * \param buffer_size      The buffer's size.
-   */
-  std::vector<DynamicGeometryResource*> const load_from_buffer(char const* buffer_name,
-                                                        unsigned buffer_size,
-                                                        bool build_kd_tree);
-  /**
-  *
-  */
-  int is_supported(std::string const& file_name) const;
  private: // methods
 
   static void apply_fallback_material(std::shared_ptr<node::Node> const& root,

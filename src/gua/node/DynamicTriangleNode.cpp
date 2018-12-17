@@ -47,7 +47,7 @@ namespace node {
 
   void DynamicTriangleNode::ray_test_impl(Ray const& ray, int options,
     Mask const& mask, std::set<PickResult>& hits) {
-    /*
+    
     // first of all, check bbox
     auto box_hits(::gua::intersect(ray, bounding_box_));
 
@@ -55,7 +55,6 @@ namespace node {
     if (box_hits.first == Ray::END && box_hits.second == Ray::END) {
       return;
     }
-
 
     // return if only first object shall be returned and the current first hit
     // is in front of the bbox entry point
@@ -169,14 +168,14 @@ namespace node {
       // test for intersection with each child
       child->ray_test_impl(ray, options, mask, hits);
     }
-  */
+  
   }
 
   ////////////////////////////////////////////////////////////////////////////////
 
 
   ////////////////////////////////////////////////////////////////////////////////
-  std::shared_ptr<DynamicTriangleResource> const& DynamicTriangleNode::get_geometry() const {
+  std::shared_ptr<DynamicGeometryResource> const& DynamicTriangleNode::get_geometry() const {
     return geometry_;
   }
 
@@ -237,11 +236,30 @@ namespace node {
                                       col_r, col_g, col_b, col_a, 
                                       thickness,
                                       u, v);
-
-      geometry_->push_vertex(vertex_to_push);
+      auto tri_geometry = std::dynamic_pointer_cast<DynamicTriangleResource>(geometry_);
+      tri_geometry->push_vertex(vertex_to_push);
     }
     
   };
+
+  void DynamicTriangleNode::update_vertex(int vertex_idx, float x, float y, float z,
+                     float col_r, float col_g, float col_b, float col_a,
+                     float thickness,
+                     float u, float v) {
+    if(nullptr != geometry_) {
+      if (vertex_idx < geometry_->num_occupied_vertex_slots()){
+        DynamicTriangle::TriVertex vertex_to_update(x, y, z, 
+                                      col_r, col_g, col_b, col_a, 
+                                      thickness,
+                                      u, v);
+        auto tri_geometry = std::dynamic_pointer_cast<DynamicTriangleResource>(geometry_);
+        tri_geometry->update_vertex(vertex_idx, vertex_to_update);
+      } else {
+        std::cout << "Vertex index doesnt exist." << std::endl;
+      }
+      
+    }
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   void DynamicTriangleNode::clear_vertices() {
@@ -256,8 +274,10 @@ namespace node {
 
   ////////////////////////////////////////////////////////////////////////////////
   void DynamicTriangleNode::forward_queued_vertices() {
+    std::cout << " FORWARDING" << std::endl;
     if(nullptr != geometry_) {
-      geometry_->forward_queued_vertices(queued_positions_, 
+      auto tri_geometry = std::dynamic_pointer_cast<DynamicTriangleResource>(geometry_);
+      tri_geometry->forward_queued_vertices(queued_positions_, 
                                          queued_colors_, 
                                          queued_thicknesses_, 
                                          queued_uvs_);
@@ -265,9 +285,16 @@ namespace node {
     }
   }
 
+  //    ////////////////////////////////////////////////////////////////////////////////
+  // void DynamicTriangleNode::set_geometry(std::shared_ptr<DynamicGeometryResource> res) {
+  //   std::cout<<"set tri GEOMETRY"<< res<< std::endl;
+  //   geometry_ = res;
+  // }
+
   void DynamicTriangleNode::update_geometry_cache(::gua::GeometryDescription const& desc) {
     gua::DynamicTriangleLoader loader;
     loader.create_empty_geometry(get_name(), desc.filepath(), get_material(), desc.flags());
+    std::cout<<"update geometry_ cache "<<std::endl;
   }
 
 }

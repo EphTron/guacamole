@@ -140,6 +140,7 @@ class GUA_DLL PipelinePass {
 
   std::function<void(PipelinePass&, PipelinePassDescription const&, Pipeline&)>
     process_ = [](PipelinePass&, PipelinePassDescription const&, Pipeline&) {
+      std::cout << "CHECK PROCESS_______ " <<std::endl;
       return;
     };
 

@@ -73,9 +73,14 @@ public : // methods
                    float thickness = 1.0f,
                    float u = 0.0f, float v = 1.0f);
 
+  void update_vertex(int vertex_idx, float x, float y, float z,
+                     float col_r = 0.0f, float col_g = 0.0f, float col_b = 0.0f, float col_a = 1.0f,
+                     float thickness = 1.0f,
+                     float u = 0.0f, float v = 0.0f);
+
   void clear_vertices();
 
-  void forward_queued_vertices();
+  void forward_queued_vertices() override;
 
   /**
   * Implements ray picking for a triangular mesh
@@ -91,7 +96,7 @@ public : // methods
   void update_bounding_box() const override;
 
 
-  std::shared_ptr<DynamicTriangleResource> const& get_geometry() const;
+  std::shared_ptr<DynamicGeometryResource> const& get_geometry() const override;
 
   bool get_trigger_update() const {return trigger_update_;}
   void set_trigger_update(bool trigger_update) {trigger_update_ = trigger_update;}
@@ -113,9 +118,11 @@ public : // methods
   private: //methods
     void update_geometry_cache(::gua::GeometryDescription const& desc) override;
 
+    //void set_geometry(std::shared_ptr<DynamicGeometryResource> res) override;
+
  private:  // attributes e.g. special attributes for drawing
 
-  std::shared_ptr<DynamicTriangleResource> geometry_;
+  //std::shared_ptr<DynamicTriangleResource> geometry_;
 
   std::vector<scm::math::vec2f> queued_uvs_;
 
