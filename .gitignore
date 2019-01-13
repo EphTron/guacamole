@@ -66,6 +66,8 @@ examples/depth_cube_map/example-depth_cube_map
 examples/lod_simple/example-lod_simple
 examples/plod_shadows/example-plod_shadows
 examples/plod_simple/example-plod_simple
+examples/volumetric_point_and_line_rendering/example-volumetric_point_and_line_rendering
+examples/virtual_texturing/example-virtual_texturing
 
 install
 examples/picking/example-picking

@@ -67,9 +67,33 @@ int main(int argc, char** argv) {
   // setup scene
   gua::SceneGraph graph("main_scenegraph");
 
-  gua::TriMeshLoader loader;
+  gua::LineStripLoader line_strip_loader;
+
+  auto line_strip_example_node(line_strip_loader
+                              .create_empty_geometry("ls_example_node", 
+                                                     "empty_node.lob"));
 
   auto transform = graph.add_node<gua::node::TransformNode>("/", "transform");
+  auto node = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+
+  node->push_vertex(0.0f, 0.0f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+  node->push_vertex(0.0f, 0.0f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+  node->push_vertex(0.0f, 1.5f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+  node->push_vertex(1.5f, 0.0f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+  node->push_vertex(0.0f, -1.5f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+  node->push_vertex(-1.5f, 0.0f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+  node->push_vertex(0.0f, 0.0f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+  //node->push_vertex(0.1f, 0.1f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+  node->push_vertex(0.0f, 0.0f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+  node->push_vertex(0.0f, 0.0f, -0.07,0.0f,0.0f,0.0f,0.0f, 0.1f,0.0f,1.0f,0.0f);
+   
+  graph.add_node("/transform", line_strip_example_node);
+  node->set_render_volumetric(false);
+  node->set_screen_space_line_width(2.5f);
+
+  gua::TriMeshLoader loader;
+
+  // auto transform = graph.add_node<gua::node::TransformNode>("/", "transform");
   auto cube(loader.create_geometry_from_file(
       "cube", "data/objects/cube.obj",
       gua::TriMeshLoader::NORMALIZE_POSITION |
