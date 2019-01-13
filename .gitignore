@@ -40,6 +40,7 @@ src/gua/generated/*
 tests/tests
 examples/oculus/example-oculus
 examples/oculus_pitoti/example-oculus_pitoti
+examples/ephra_simple/example-ephra_simple
 examples/multicontext/example-multicontext
 examples/input/example-input
 examples/gui/example-gui
