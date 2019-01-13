@@ -1,0 +1,16 @@
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-36-58.jpg 713 551
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-13.jpg 607 452
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-26.jpg 779 344
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-36-54.jpg 359 666
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-30.jpg 493 327
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-05.jpg 583 362
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-11.jpg 462 447
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-02.jpg 479 288
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-36-47.jpg 419 359
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-22.jpg 670 367
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-09.jpg 714 475
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-33.jpg 264 454
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-19.jpg 717 270
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-36-51.jpg 646 418
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-16.jpg 678 199
+/home/ephtron/Projects/guacamole/examples/ephra_simple/data/textures/photo_2018-11-20_12-37-00.jpg 575 327
