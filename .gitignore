@@ -68,3 +68,5 @@ examples/plod_simple/example-plod_simple
 
 install
 examples/picking/example-picking
+
+examples/ephra_simple/data/objects/plane.obj
