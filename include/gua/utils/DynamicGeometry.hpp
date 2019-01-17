@@ -94,6 +94,8 @@ struct GUA_DLL DynamicGeometry {
   void uncompile_buffer_string(std::string const& buffer_string);
 
   bool push_vertex(Vertex const& v_to_push);
+  bool update_vertex(int vertex_idx, Vertex const& v_to_update);
+
   virtual bool pop_back_vertex();
   virtual bool pop_front_vertex();
   virtual bool clear_vertices();

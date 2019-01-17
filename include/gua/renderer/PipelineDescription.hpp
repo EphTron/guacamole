@@ -33,6 +33,7 @@ namespace gua {
   class TriMeshPassDescription;
   class LineStripPassDescription;
   class DynamicGeometryPassDescription;
+  class DynamicLinePassDescription;
   class DynamicTrianglePassDescription;
   // class SkeletalAnimationPassDescription;
   class TexturedQuadPassDescription;
@@ -62,6 +63,7 @@ class GUA_DLL PipelineDescription {
   std::shared_ptr<TriMeshPassDescription> const get_tri_mesh_pass() const;
   std::shared_ptr<LineStripPassDescription> const get_line_strip_pass() const;
   std::shared_ptr<DynamicGeometryPassDescription> const get_dynamic_geometry_pass() const;
+  std::shared_ptr<DynamicLinePassDescription> const get_dynamic_line_pass() const;
   std::shared_ptr<DynamicTrianglePassDescription> const get_dynamic_triangle_pass() const;
   // std::shared_ptr<SkeletalAnimationPassDescription> const get_skel_anim_pass() const;
   std::shared_ptr<TexturedQuadPassDescription> const get_textured_quad_pass() const;

@@ -27,6 +27,7 @@
 #include <gua/renderer/TriMeshPass.hpp>
 #include <gua/renderer/LineStripPass.hpp>
 #include <gua/renderer/DynamicGeometryPass.hpp>
+#include <gua/renderer/DynamicLinePass.hpp>
 #include <gua/renderer/DynamicTrianglePass.hpp>
 #include <gua/renderer/LightVisibilityPass.hpp>
 #include <gua/renderer/BBoxPass.hpp>
@@ -47,6 +48,7 @@ std::shared_ptr<PipelineDescription> PipelineDescription::make_default() {
   pipe->add_pass(std::make_shared<TriMeshPassDescription>());
   pipe->add_pass(std::make_shared<LineStripPassDescription>());
   pipe->add_pass(std::make_shared<DynamicGeometryPassDescription>());
+  pipe->add_pass(std::make_shared<DynamicLinePassDescription>());
   pipe->add_pass(std::make_shared<DynamicTrianglePassDescription>());
   pipe->add_pass(std::make_shared<TexturedQuadPassDescription>());
   pipe->add_pass(std::make_shared<LightVisibilityPassDescription>());
@@ -115,6 +117,13 @@ std::shared_ptr<LineStripPassDescription> const PipelineDescription::get_line_st
 std::shared_ptr<DynamicGeometryPassDescription> const PipelineDescription::get_dynamic_geometry_pass() const
 {
   return get_pass_by_type<DynamicGeometryPassDescription>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::shared_ptr<DynamicLinePassDescription> const PipelineDescription::get_dynamic_line_pass() const
+{
+  return get_pass_by_type<DynamicLinePassDescription>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

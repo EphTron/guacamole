@@ -222,6 +222,19 @@ bool DynamicGeometry::push_vertex(Vertex const& v_to_push) {
  return true;
 }
 
+bool DynamicGeometry::update_vertex(int vertex_idx, Vertex const& v_to_update){
+
+  if (vertex_idx < positions.size()){
+    positions[vertex_idx] = v_to_update.pos;
+    colors[vertex_idx] = v_to_update.col;
+    thicknesses[vertex_idx] = v_to_update.thick;
+
+    return true;
+  } else {
+    return false;
+  }
+}
+
 bool DynamicGeometry::pop_front_vertex() {
 
   if(num_occupied_vertex_slots < 2) {
