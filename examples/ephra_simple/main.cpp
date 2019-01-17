@@ -27,6 +27,7 @@
 #include <gua/renderer/DebugViewPass.hpp>
 #include <gua/utils/Trackball.hpp>
 
+#include <gua/renderer/DynamicLinePass.hpp>
 #include <gua/renderer/DynamicTrianglePass.hpp>
 #include <gua/virtual_texturing/DeferredVirtualTexturingPass.hpp>
 
@@ -70,6 +71,72 @@ void mouse_button(gua::utils::Trackball& trackball,
 }
 
 
+//// Helper functions ////
+
+// function to create quad
+std::shared_ptr<gua::node::Node> 
+create_dynamic_triangle_quad(std::shared_ptr<gua::Material> vt_texture){
+  gua::DynamicTriangleLoader dynamic_triangle_loader;
+
+  auto dynamic_triangle_node(dynamic_triangle_loader
+                              .create_empty_geometry("ls_example_node", 
+                                                     "empty_node.lob",
+                                                      vt_texture,
+                                                       // my_texture_mat, // use iF NOT VT
+                                                      gua::TriMeshLoader::NORMALIZE_POSITION |
+                                                      gua::TriMeshLoader::NORMALIZE_SCALE |  
+                                                      gua::TriMeshLoader::MAKE_PICKABLE));
+
+  auto node = std::dynamic_pointer_cast<gua::node::DynamicTriangleNode>(dynamic_triangle_node);
+
+  node->set_draw_bounding_box(true);
+  node->set_render_volumetric(false);
+  //node->set_screen_space_line_width(2.5f);
+
+  node->push_vertex(-1.0f,  1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.1f, 0.2f);
+  node->push_vertex( 1.0f, -1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.2f, 0.1f);
+  node->push_vertex( 1.0f,  1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.2f, 0.20f);
+
+  node->push_vertex(-1.0f,  1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.1f, 0.2f);
+  node->push_vertex(-1.0f, -1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.1f, 0.1f);
+  node->push_vertex( 1.0f, -1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.2f, 0.1f);
+
+  return dynamic_triangle_node;
+}
+
+std::shared_ptr<gua::node::Node> 
+create_dynamic_lines(){
+  gua::DynamicLineLoader dynamic_line_loader;
+  std::shared_ptr<gua::node::Node>  dynamic_line_node(dynamic_line_loader
+                              .create_empty_geometry("line_node", 
+                                                     "empty_node_2.lob",
+                                                       // my_texture_mat, // use iF NOT VT
+                                                      gua::TriMeshLoader::NORMALIZE_POSITION |
+                                                      gua::TriMeshLoader::NORMALIZE_SCALE |  
+                                                      gua::TriMeshLoader::MAKE_PICKABLE));
+  auto node = std::dynamic_pointer_cast<gua::node::DynamicLineNode>(dynamic_line_node);
+  node->set_draw_bounding_box(true);
+  
+  node->set_render_volumetric(false);
+  node->set_screen_space_line_width(2.5f);
+
+  node->push_vertex(-1.0f,  1.0f, -2.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f);
+  node->push_vertex( 1.0f, -1.0f, -2.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.1f);
+
+  node->push_vertex( 1.0f,  1.0f, -2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.1f);
+  node->push_vertex(-1.0f,  1.0f, -2.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.1f);
+
+  node->push_vertex(-1.0f, -1.0f, -2.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.1f);
+  node->push_vertex( 1.0f, -1.0f, -2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.1f);
+
+  node->push_vertex(-1.0f, -1.0f, -2.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.1f);
+  node->push_vertex( 1.0f,  1.0f, -2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.1f);
+  
+  return dynamic_line_node;
+}
+
+
+
 int main(int argc, char** argv) {
   // initialize guacamole
   gua::init(argc, argv);
@@ -79,72 +146,28 @@ int main(int argc, char** argv) {
 
   // VT STEP 1/5: - create a material
   auto earth_vt_mat = gua::MaterialShaderDatabase::instance()->lookup("gua_default_material")->make_new_material();
-  earth_vt_mat->set_uniform("earth_vt_mat", std::string("/home/ephtron/Projects/avango/examples/ephras_app/data/salem.atlas"));
-  
 
   // VT STEP 2/5: - load *.atlas-File as uniform
-  // earth_vt_mat->set_uniform("earth_vt_mat", std::string("/opt/3d_models/virtual_texturing/earth_colour_86400x43200_256x256_1_rgb.atlas"));
-  // earth_vt_mat->set_uniform("earth_vt_mat", std::string("/home/ephtron/e_vive_controller/onepointfive_texture_2048_w2048_h2048.atlas"));
+  earth_vt_mat->set_uniform("earth_vt_mat", std::string("/home/ephtron/Projects/avango/examples/ephras_app/data/salem.atlas"));
 
   // VT STEP 3/5: - enable virtual texturing for this material
   earth_vt_mat->set_enable_virtual_texturing(true);
 
-  // // make texture 
-  // gua::TextureDatabase::instance()->load("data/objects/bottle/albedo.png");
-
-  // mat_bottle->set_uniform("ColorMap",     std::string("data/objects/bottle/albedo.png"))
+  // make texture 
   // gua::TextureDatabase::instance()->load("data/textures/out.png");
   // auto my_texture_mat = gua::MaterialShaderDatabase::instance()->lookup("gua_default_material")->make_new_material();
   // my_texture_mat->set_uniform("ColorMap", std::string("data/textures/out.png"))
   //                .set_show_back_faces(true);  ///// USE IF NO VT
-
-  gua::DynamicTriangleLoader line_strip_loader;
-
-  auto line_strip_example_node(line_strip_loader
-                              .create_empty_geometry("ls_example_node", 
-                                                     "empty_node.lob",
-                                                      earth_vt_mat,
-                                                       // my_texture_mat, // use iF NOT VT
-                                                      gua::TriMeshLoader::NORMALIZE_POSITION |
-                                                      gua::TriMeshLoader::NORMALIZE_SCALE |  
-                                                      gua::TriMeshLoader::MAKE_PICKABLE));
-
-  // get type of example node
-  // std::cout << "typeof(i) = " << type_str<decltype(line_strip_example_node)>() << '\n';
+  
+  auto dt_node = create_dynamic_triangle_quad(earth_vt_mat);
+  auto dl_node = create_dynamic_lines();
 
   auto transform = graph.add_node<gua::node::TransformNode>("/", "transform");
-  
-  // auto node = std::dynamic_pointer_cast<gua::node::DynamicGeometryNode>(line_strip_example_node);
-  auto node = std::dynamic_pointer_cast<gua::node::DynamicTriangleNode>(line_strip_example_node);
-  // auto node = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
-  //for (int i = 0; i < 200; ++i){  // TEST THE PERFMANCE
-    node->push_vertex(-1.0f,  1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.1f, 0.2f);
-    node->push_vertex( 1.0f, -1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.2f, 0.1f);
-    node->push_vertex( 1.0f,  1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.2f, 0.20f);
-
-    // node->push_vertex(-1.0f,  1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.0f, 0.0f);
-    // node->push_vertex(-1.0f, -1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.1f, 0.0f, 1.0f);
-    // node->push_vertex( 1.0f, -1.0f, -4.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 1.0f, 0.0f);
-  //}
-
-
-
-  node->set_draw_bounding_box(true);
-  node->set_render_volumetric(false);
-  //node->set_screen_space_line_width(2.5f);
-   
-  graph.add_node("/transform", line_strip_example_node);
+  graph.add_node("/transform", dt_node);
+  graph.add_node("/transform", dl_node);
 
   gua::TriMeshLoader loader;
-
-  auto ray_geometry(loader.create_geometry_from_file(
-      "ray_geometry", "data/objects/cylinder.obj",
-      gua::TriMeshLoader::NORMALIZE_POSITION |
-      gua::TriMeshLoader::NORMALIZE_SCALE)  );
-  graph.add_node("/", ray_geometry);
-
-  ray_geometry->scale(0.02, 0.02, 0.1);
-
+  
   // auto fking_plane(loader.create_geometry_from_file(
   //     "fking_plane", "data/objects/plane.obj",
   //     my_texture_mat,
@@ -157,16 +180,27 @@ int main(int argc, char** argv) {
 
   scm::math::vec3d cube_translation(0.0, 0.0, -5.0);
 
+
+  // create and add pick ray geometry
+  auto ray_geometry(loader.create_geometry_from_file(
+      "ray_geometry", "data/objects/cylinder.obj",
+      gua::TriMeshLoader::NORMALIZE_POSITION |
+      gua::TriMeshLoader::NORMALIZE_SCALE)  );
+  graph.add_node("/", ray_geometry);
+
+  ray_geometry->scale(0.02, 0.02, 0.1);
+
+  // create and add light node
   auto light2 = graph.add_node<gua::node::LightNode>("/", "light2");
   light2->data.set_type(gua::node::LightNode::Type::POINT);
   light2->data.brightness = 150.0f;
   light2->scale(12.f);
   light2->translate(-3.f, 5.f, 5.f);
 
+  // create and add screen node
   auto screen = graph.add_node<gua::node::ScreenNode>("/", "screen");
   screen->data.set_size(gua::math::vec2(1.92f, 1.08f));
   screen->translate(0, 0, 1.0);
-
 
   // add mouse interaction
   gua::utils::Trackball trackball(0.01, 0.002, 0.2);
@@ -187,9 +221,10 @@ int main(int argc, char** argv) {
 
   auto pipe = std::make_shared<gua::PipelineDescription>();
   pipe->add_pass(std::make_shared<gua::TriMeshPassDescription>());
+  pipe->add_pass(std::make_shared<gua::DynamicLinePassDescription>());
   pipe->add_pass(std::make_shared<gua::DynamicTrianglePassDescription>());
-  // VT STEP 5/5: - add DeferredVirtualTexturingPassDescription
 
+  // VT STEP 5/5: - add DeferredVirtualTexturingPassDescription
   pipe->add_pass(std::make_shared<gua::DeferredVirtualTexturingPassDescription>()); // <- ONLY USE THIS PASS IF YOU LOAD VT MODELS
   pipe->add_pass(std::make_shared<gua::LightVisibilityPassDescription>());
   
@@ -259,8 +294,8 @@ int main(int argc, char** argv) {
 
       if(0 == (++frame_count) % 100) {
           
-          std::cout << "World space intersection position: " << pick_results.begin()->world_position << "\n";
-          std::cout << "World NAME : " << pick_results.begin()->object << "\n";
+          // std::cout << "World space intersection position: " << pick_results.begin()->world_position << "\n";
+          // std::cout << "World NAME : " << pick_results.begin()->object << "\n";
       }
       
       renderer.queue_draw({&graph});
