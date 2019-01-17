@@ -80,30 +80,29 @@ PipelinePass BBoxPassDescription::make_pass(RenderContext const& ctx, Substituti
 
   pass.process_ = [buffer_, vao_](
       PipelinePass &, PipelinePassDescription const&, Pipeline & pipe) {
-    
+
     auto const& scene = *(pipe.current_viewstate().scene);
     auto count(scene.bounding_boxes.size());
+
     if (count < 1)
       return;
     // else
     RenderContext const& ctx(pipe.get_context());
+
     ctx.render_device->resize_buffer(buffer_, count * 2 * sizeof(math::vec3f));
-    
 
     {
       auto data = static_cast<math::vec3f*>(ctx.render_context->map_buffer(
           buffer_, scm::gl::ACCESS_WRITE_INVALIDATE_BUFFER));
-<<<<<<< HEAD
-      
-=======
 
->>>>>>> upstream/master
       for (unsigned int i = 0; i < count; ++i) {
         data[2 * i] = math::vec3f(scene.bounding_boxes[i].min);
         data[2 * i + 1] = math::vec3f(scene.bounding_boxes[i].max);
       }
+
       ctx.render_context->unmap_buffer(buffer_);
     }
+
     ctx.render_context->bind_vertex_array(vao_);
 
     ctx.render_context->apply();
