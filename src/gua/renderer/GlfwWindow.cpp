@@ -208,6 +208,7 @@ void GlfwWindow::process_events() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void GlfwWindow::cursor_mode(CursorMode mode) {
+
   switch(mode) {
     case CursorMode::NORMAL:
       if(get_is_open()) glfwSetInputMode(glfw_window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);

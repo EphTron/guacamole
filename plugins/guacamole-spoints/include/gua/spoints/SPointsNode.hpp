@@ -26,6 +26,8 @@
 #include <gua/spoints/platform.hpp>
 #include <gua/node/GeometryNode.hpp>
 #include <gua/databases/GeometryDescription.hpp>
+#include <gua/spoints/SPointsResource.hpp>
+#include <gua/spoints/spoints_geometry/NetKinectArray.hpp>
 
 // external headers
 #include <string>
@@ -63,6 +65,14 @@ class GUA_SPOINTS_DLL SPointsNode : public GeometryNode {
   inline float get_screen_space_point_size() const { return screen_space_point_size_; }
   inline void  set_screen_space_point_size(float point_size) { screen_space_point_size_ = point_size; }
 
+  inline spoints::SPointsStats get_latest_spoints_stats() const {
+    if(nullptr != spoints_) {
+      return spoints_->get_latest_spoints_stats();
+    } else {
+      return spoints::SPointsStats();
+    }
+  };
+
   /**
    * Accepts a visitor and calls concrete visit method.
    *
@@ -79,6 +89,9 @@ class GUA_SPOINTS_DLL SPointsNode : public GeometryNode {
   std::shared_ptr<Material> const& get_material() const;
   void                            set_material(std::shared_ptr<Material> const& material);
 
+  void set_is_server_resource(bool is_server_resource);
+  bool get_is_server_resource() const;
+
  protected:
   std::shared_ptr<Node> copy() const override;
 
@@ -91,6 +104,8 @@ class GUA_SPOINTS_DLL SPointsNode : public GeometryNode {
 
   std::shared_ptr<Material>        material_;
   bool                             material_changed_;
+
+  bool                             is_server_resource_;
 };
 
 } // namespace node {

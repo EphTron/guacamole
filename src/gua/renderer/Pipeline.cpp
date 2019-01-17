@@ -208,11 +208,11 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
     }
     passes_[i].process(*last_description_.get_passes()[i], *this);
   }
+
 #ifdef GUACAMOLE_ENABLE_PIPELINE_PASS_TIME_QUERIES
   fetch_gpu_query_results(context_);
 
-  // if (context_.framecount % 60 == 0) {
-  if (0) {
+  if (context_.framecount % 60 == 0) {
     std::cout << "===== Time Queries for Context: " << context_.id
               << " ============================" << std::endl;
     for (auto const& t : queries_.results) {
@@ -223,6 +223,7 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
               << std::endl;
   }
 #endif
+
   gbuffer_->toggle_ping_pong();
 
   // add texture to texture database
@@ -230,7 +231,6 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
   scm::gl::texture_2d_ptr color_tex = gbuffer_->get_color_buffer();
 
   if (tex_name != "") {
-
     if (auto dummy_tex = TextureDatabase::instance()->lookup(tex_name)) {
       context_.textures[dummy_tex->uuid()] = RenderContext::Texture{color_tex, gbuffer_->get_sampler_state()};
       //context_.textures[dummy_tex->uuid()] = RenderContext::Texture{gbuffer_->get_color_buffer(), gbuffer_->get_sampler_state()};
@@ -241,7 +241,7 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(
       context_.textures[dummy_tex->uuid()] = RenderContext::Texture{depth_tex, gbuffer_->get_sampler_state()};
     }
   }
-  
+
   return color_tex;
 }
 
@@ -251,7 +251,7 @@ void Pipeline::apply_post_render_actions(RenderContext const& ctx) {
   auto pass_descriptions = last_description_.get_passes();
 
   for (auto& pass : pass_descriptions) {
-    pass->apply_post_render_action(ctx);
+    pass->apply_post_render_action(ctx, this);
   }
 }
 

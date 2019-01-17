@@ -103,6 +103,7 @@ void Renderer::renderclient(Mailbox in, std::string window_name) {
 
   for (auto& cmd : gua::concurrent::pull_items_range<Item, Mailbox>(in)) {
     //auto window_name(cmd.serialized_cam->config.get_output_window_name());
+
     if (window_name != "") {
       auto window = WindowDatabase::instance()->lookup(window_name);
 
@@ -140,6 +141,9 @@ void Renderer::renderclient(Mailbox in, std::string window_name) {
 
         window->rendering_fps = fpsc.fps;
 
+
+
+
         if (cmd.serialized_cam->config.get_enable_stereo()) {
           if (window->config.get_stereo_mode() == StereoMode::NVIDIA_3D_VISION) {
             #ifdef GUACAMOLE_ENABLE_NVIDIA_3D_VISION
@@ -163,9 +167,9 @@ void Renderer::renderclient(Mailbox in, std::string window_name) {
             }
           } else {
             // TODO: add alternate frame rendering here? -> take clear and render methods
-            
+
             auto img(pipe->render_scene(CameraMode::LEFT, *cmd.serialized_cam, *cmd.scene_graphs));
-            
+
             if (img) window->display(img, true);
             img = pipe->render_scene(CameraMode::RIGHT, *cmd.serialized_cam, *cmd.scene_graphs);
             if (img) window->display(img, false);
@@ -186,6 +190,8 @@ void Renderer::renderclient(Mailbox in, std::string window_name) {
         ++(window->get_context()->framecount);
 
         fpsc.step();
+
+
       }
     }
 

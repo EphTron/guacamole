@@ -88,6 +88,7 @@ void LineStripResource::upload_to(RenderContext& ctx) const {
   }
 */
  
+
   auto line_strip_iterator = ctx.line_strips.find(uuid());
 
   bool update_cached_linestrip{false};
@@ -102,7 +103,7 @@ void LineStripResource::upload_to(RenderContext& ctx) const {
     line_strip_to_update_ptr = &(line_strip_iterator->second);
   }
 
-                                            // = mode_;
+
   line_strip_to_update_ptr->vertex_topology = scm::gl::PRIMITIVE_LINE_STRIP_ADJACENCY;
   line_strip_to_update_ptr->vertex_reservoir_size = line_strip_.vertex_reservoir_size;
   line_strip_to_update_ptr->num_occupied_vertex_slots = line_strip_.num_occupied_vertex_slots;
@@ -147,10 +148,7 @@ void LineStripResource::draw(RenderContext& ctx) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 void LineStripResource::draw(RenderContext& ctx, bool render_vertices_as_points) const {
-  //std::cout<<"drawing"<<std::endl;
   auto iter = ctx.line_strips.find(uuid());
-
-
 
   bool& clean_flag_for_context = clean_flags_per_context_[uuid()];
 
@@ -165,8 +163,6 @@ void LineStripResource::draw(RenderContext& ctx, bool render_vertices_as_points)
     //dirty_flags_per_context_[uuid()] = false;;
   }
   
-
-
   ctx.render_context->bind_vertex_array(iter->second.vertex_array);
   //ctx.render_context->bind_index_buffer(iter->second.indices, iter->second.indices_topology, iter->second.indices_type);
   ctx.render_context->apply_vertex_input();

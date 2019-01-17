@@ -78,6 +78,7 @@ void SkeletalAnimationRenderer::create_state_objects(RenderContext const& ctx) {
 
 void SkeletalAnimationRenderer::render(Pipeline& pipe,
                                        PipelinePassDescription const& desc) {
+
   auto& scene = *pipe.current_viewstate().scene;
   auto sorted_objects(
       scene.nodes.find(std::type_index(typeid(node::SkeletalAnimationNode))));
@@ -234,8 +235,11 @@ void SkeletalAnimationRenderer::render(Pipeline& pipe,
           // upload data if necessary
           auto iter = ctx.meshes.find(geometries[i]->uuid());
           if (iter == ctx.meshes.end()) {
-            geometries[i]->upload_to(ctx, skinning_resource_);
+
+              geometries[i]->upload_to(ctx, skinning_resource_);
           }
+
+          // std::cout << "render_scene" << std::endl;
 
           geometries[i]->draw(ctx);
         }

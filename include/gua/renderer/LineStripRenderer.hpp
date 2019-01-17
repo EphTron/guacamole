@@ -67,3 +67,4 @@ class LineStripRenderer {
 }
 
 #endif  // GUA_LINE_STRIP_RENDERER_HPP
+

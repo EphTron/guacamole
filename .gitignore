@@ -40,7 +40,6 @@ src/gua/generated/*
 tests/tests
 examples/oculus/example-oculus
 examples/oculus_pitoti/example-oculus_pitoti
-examples/ephra_simple/example-ephra_simple
 examples/multicontext/example-multicontext
 examples/input/example-input
 examples/gui/example-gui
@@ -66,10 +65,18 @@ examples/depth_cube_map/example-depth_cube_map
 examples/lod_simple/example-lod_simple
 examples/plod_shadows/example-plod_shadows
 examples/plod_simple/example-plod_simple
-examples/volumetric_point_and_line_rendering/example-volumetric_point_and_line_rendering
+
 examples/virtual_texturing/example-virtual_texturing
+examples/volumetric_point_and_line_rendering/example-volumetric_point_and_line_rendering
 
 install
 examples/picking/example-picking
 
 examples/ephra_simple/data/objects/plane.obj
+
+example-gazebo_scene
+
+.idea
+
+
+examples/ephra_simple/example-ephra_simple

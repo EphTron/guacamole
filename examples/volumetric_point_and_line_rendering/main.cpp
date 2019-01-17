@@ -63,7 +63,6 @@ void mouse_button(gua::utils::Trackball& trackball,
 int main(int argc, char** argv) {
   // initialize guacamole
   gua::init(1, argv);
-  std::cout << "hello line strip" << std::endl;
 
 
   namespace po = boost::program_options;
@@ -103,7 +102,6 @@ int main(int argc, char** argv) {
   gua::SceneGraph graph("main_scenegraph");
 
   gua::LineStripLoader line_strip_loader;
-  std::cout << "hello line strip loader" << std::endl;
 
   auto transform = graph.add_node<gua::node::TransformNode>("/", "transform");
 
@@ -116,7 +114,6 @@ int main(int argc, char** argv) {
   //actual_line_strip_node->set_render_vertices_as_points(true);
 
   graph.add_node("/transform", line_strip_example_node);
-  std::cout << "hello line strip example node" << std::endl;
   //line_strip_example_node->set_draw_bounding_box(true);
 
   auto line_strip_example_real_geometry_node(line_strip_loader
@@ -126,7 +123,6 @@ int main(int argc, char** argv) {
                                                            gua::LineStripLoader::NORMALIZE_SCALE) );
 
   graph.add_node("/transform", line_strip_example_real_geometry_node);
-  std::cout << "hello real geometry node" << std::endl;
 
   line_strip_example_real_geometry_node->translate(1.0, 0.0, 0.0);
 
@@ -160,7 +156,6 @@ int main(int argc, char** argv) {
     1.0f);
   //camera->get_pipeline_description()->add_pass(
   //  std::make_shared<gua::DebugViewPassDescription>());
-  std::cout << "hello camera" << std::endl;
 
   auto window = std::make_shared<gua::GlfwWindow>();
   gua::WindowDatabase::instance()->add("main_window", window);
@@ -182,173 +177,169 @@ int main(int argc, char** argv) {
       std::bind(mouse_button, std::ref(trackball), std::placeholders::_1,
                 std::placeholders::_2, std::placeholders::_3));
 
-  uint32_t pushed_spiral_vertices = 0;
 
+uint32_t pushed_spiral_vertices = 0;
 
-  float line_width = 1.0f;
-  //////////////////////////////////////////////////////////////////////////////////////
-  // key press events
-  //////////////////////////////////////////////////////////////////////////////////////
-  window->on_key_press.connect([&](int key, int scancode, int action, int mods) {
+float line_width = 1.0f;
+    //////////////////////////////////////////////////////////////////////////////////////
+    // key press events
+    //////////////////////////////////////////////////////////////////////////////////////
+    window->on_key_press.connect([&](int key, int scancode, int action, int mods) {
 
-    if (action == 0) return; // only press events
+        if (action == 0) return; // only press events
         
-    switch (key) {
-      case ' ': {
+        switch (key) {
 
-        float b = 0.1;
-        float a = 6.28;
-        float spiral_float_parameter = pushed_spiral_vertices * 0.1;
+        case ' ': {
+              float b = 0.1;
+              float a = 6.28;
+              float spiral_float_parameter = pushed_spiral_vertices * 0.1;
 
-        float norm_pos_x = b * spiral_float_parameter * std::cos(spiral_float_parameter + a);
-        float norm_pos_y = spiral_float_parameter * 0.3;
-        float norm_pos_z = b * spiral_float_parameter * std::sin(spiral_float_parameter + a);
+              float norm_pos_x = b * spiral_float_parameter * std::cos(spiral_float_parameter + a);
+              float norm_pos_y = spiral_float_parameter * 0.3;
+              float norm_pos_z = b * spiral_float_parameter * std::sin(spiral_float_parameter + a);
 
-        float rand_r = std::rand() / (float) RAND_MAX;
-        float rand_g = std::rand() / (float) RAND_MAX;
-        float rand_b = std::rand() / (float) RAND_MAX;
+              float rand_r = std::rand() / (float) RAND_MAX;
+              float rand_g = std::rand() / (float) RAND_MAX;
+              float rand_b = std::rand() / (float) RAND_MAX;
 
-        ++pushed_spiral_vertices;
+              ++pushed_spiral_vertices;
 
-        if(line_strip_example_node->has_children()) { //work on grouped line strips
-          for( auto& child : line_strip_example_node->get_children() ) {
-            auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
+          if(line_strip_example_node->has_children()) { //work on grouped line strips
+            for( auto& child : line_strip_example_node->get_children() ) {
+              auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
 
-            line_strip_child->push_vertex(norm_pos_x, norm_pos_y, norm_pos_z, rand_r, rand_g, rand_b, 1.0f, 0.2f, 0.0f, 1.0f, 0.0f);
-          }            
-        } else { //work on parent node
-          auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
-          line_strip_parent->push_vertex(norm_pos_x, norm_pos_y, norm_pos_z, rand_r, rand_g, rand_b, 1.0f, 0.2f, 0.0f, 1.0f, 0.0f);
+              line_strip_child->push_vertex(norm_pos_x, norm_pos_y, norm_pos_z, rand_r, rand_g, rand_b, 1.0f, 0.2f, 0.0f, 1.0f, 0.0f);
+            }            
+          } else { //work on parent node
+            auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+            line_strip_parent->push_vertex(norm_pos_x, norm_pos_y, norm_pos_z, rand_r, rand_g, rand_b, 1.0f, 0.2f, 0.0f, 1.0f, 0.0f);
+          }
         }
-      }
-      break;
+        break;
 
-      case 'B': {
-        if(line_strip_example_node->has_children()) { //work on grouped line strips
-          for( auto& child : line_strip_example_node->get_children() ) {
-            auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
+        case 'B': {
+          if(line_strip_example_node->has_children()) { //work on grouped line strips
+            for( auto& child : line_strip_example_node->get_children() ) {
+              auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
 
-            line_strip_child->clear_vertices();
-          }            
-        } else { //work on parent node
-          auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
-          bool render_as_points = line_strip_parent->get_render_vertices_as_points();
+              line_strip_child->clear_vertices();
+            }            
+          } else { //work on parent node
+            auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+            bool render_as_points = line_strip_parent->get_render_vertices_as_points();
 
-          line_strip_parent->clear_vertices();
+            line_strip_parent->clear_vertices();
+          }
         }
-      }
-      break;
+        break;
 
-      case 'M': {
-        if(line_strip_example_node->has_children()) { //work on grouped line strips
-          for( auto& child : line_strip_example_node->get_children() ) {
-            auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
+        case 'M': {
+          if(line_strip_example_node->has_children()) { //work on grouped line strips
+            for( auto& child : line_strip_example_node->get_children() ) {
+              auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
 
-            line_strip_child->pop_front_vertex();
-          }            
-        } else { //work on parent node
-          auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
-          bool render_as_points = line_strip_parent->get_render_vertices_as_points();
+              line_strip_child->pop_front_vertex();
+            }            
+          } else { //work on parent node
+            auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+            bool render_as_points = line_strip_parent->get_render_vertices_as_points();
 
-          line_strip_parent->pop_front_vertex();
+            line_strip_parent->pop_front_vertex();
+          }
         }
-      }
-      break;
+        break;
 
-      case 'N': {
-        if(line_strip_example_node->has_children()) { //work on grouped line strips
-          for( auto& child : line_strip_example_node->get_children() ) {
-            auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
+        case 'N': {
+          if(line_strip_example_node->has_children()) { //work on grouped line strips
+            for( auto& child : line_strip_example_node->get_children() ) {
+              auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
 
-            line_strip_child->pop_back_vertex();
-          }            
-        } else { //work on parent node
-          auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
-          bool render_as_points = line_strip_parent->get_render_vertices_as_points();
+              line_strip_child->pop_back_vertex();
+            }            
+          } else { //work on parent node
+            auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+            bool render_as_points = line_strip_parent->get_render_vertices_as_points();
 
-          line_strip_parent->pop_back_vertex();
+            line_strip_parent->pop_back_vertex();
+          }
         }
-      }
-      break;
+        break;
 
-      case 'A': {
-        if(line_strip_example_node->has_children()) { //work on grouped line strips
-          for( auto& child : line_strip_example_node->get_children() ) {
-            auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
-            bool render_as_points = line_strip_child->get_render_vertices_as_points();
-            line_strip_child->set_render_vertices_as_points(!render_as_points);
-          }            
-        } else { //work on parent node
-          auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
-          bool render_as_points = line_strip_parent->get_render_vertices_as_points();
-          line_strip_parent->set_render_vertices_as_points(!render_as_points);
+        case 'A': {
+          if(line_strip_example_node->has_children()) { //work on grouped line strips
+            for( auto& child : line_strip_example_node->get_children() ) {
+              auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
+              bool render_as_points = line_strip_child->get_render_vertices_as_points();
+              line_strip_child->set_render_vertices_as_points(!render_as_points);
+            }            
+          } else { //work on parent node
+            auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+            bool render_as_points = line_strip_parent->get_render_vertices_as_points();
+            line_strip_parent->set_render_vertices_as_points(!render_as_points);
+          }
         }
-      }
-      break;
+        break;
 
-      case 'S':{
-        if(line_strip_example_node->has_children()) { //work on grouped line strips
-          for( auto& child : line_strip_example_node->get_children() ) {
-            auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
-            bool render_volumetric = line_strip_child->get_render_volumetric();
-            line_strip_child->set_render_volumetric(!render_volumetric);
-          }            
-        } else { //work on parent node
-          auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
-          bool render_volumetric = line_strip_parent->get_render_volumetric();
-          line_strip_parent->set_render_volumetric(!render_volumetric);
-        }
-      }
-      break;
+        case 'S':
+          if(line_strip_example_node->has_children()) { //work on grouped line strips
+            for( auto& child : line_strip_example_node->get_children() ) {
+              auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
+              bool render_volumetric = line_strip_child->get_render_volumetric();
+              line_strip_child->set_render_volumetric(!render_volumetric);
+            }            
+          } else { //work on parent node
+            auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+            bool render_volumetric = line_strip_parent->get_render_volumetric();
+            line_strip_parent->set_render_volumetric(!render_volumetric);
+          }
+        break;
 
-      case 'R':{
-        if(line_strip_example_node->has_children()) { //work on grouped line strips
-          for( auto& child : line_strip_example_node->get_children() ) {
-            auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
-            bool render_volumetric = line_strip_child->get_render_volumetric();
+        case 'R':
+          if(line_strip_example_node->has_children()) { //work on grouped line strips
+            for( auto& child : line_strip_example_node->get_children() ) {
+              auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
+              bool render_volumetric = line_strip_child->get_render_volumetric();
+
+              line_width += 1.0f;
+              line_width = std::min(10.0f, line_width);
+              line_strip_child->set_screen_space_line_width(line_width);
+            }            
+          } else { //work on parent node
+            auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+            bool render_volumetric = line_strip_parent->get_render_volumetric();
 
             line_width += 1.0f;
             line_width = std::min(10.0f, line_width);
-            line_strip_child->set_screen_space_line_width(line_width);
-          }            
-        } else { //work on parent node
-          auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
-          bool render_volumetric = line_strip_parent->get_render_volumetric();
+            line_strip_parent->set_screen_space_line_width(line_width);
+          }
+        break;
 
-          line_width += 1.0f;
-          line_width = std::min(10.0f, line_width);
-          line_strip_parent->set_screen_space_line_width(line_width);
-        }
-      }
-      break;
+        case 'F':
+          if(line_strip_example_node->has_children()) { //work on grouped line strips
+            for( auto& child : line_strip_example_node->get_children() ) {
+              auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
+              bool render_volumetric = line_strip_child->get_render_volumetric();
 
-      case 'F':{
-        if(line_strip_example_node->has_children()) { //work on grouped line strips
-          for( auto& child : line_strip_example_node->get_children() ) {
-            auto line_strip_child = std::dynamic_pointer_cast<gua::node::LineStripNode>(child);
-            bool render_volumetric = line_strip_child->get_render_volumetric();
+              line_width -= 1.0f;
+              line_width = std::max(1.0f, line_width);
+              line_strip_child->set_screen_space_line_width(line_width);
+            }            
+          } else { //work on parent node
+            auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
+            bool render_volumetric = line_strip_parent->get_render_volumetric();
 
             line_width -= 1.0f;
             line_width = std::max(1.0f, line_width);
-            line_strip_child->set_screen_space_line_width(line_width);
-          }            
-        } else { //work on parent node
-          auto line_strip_parent = std::dynamic_pointer_cast<gua::node::LineStripNode>(line_strip_example_node);
-          bool render_volumetric = line_strip_parent->get_render_volumetric();
+            line_strip_parent->set_screen_space_line_width(line_width);
+          }
+        break;
 
-          line_width -= 1.0f;
-          line_width = std::max(1.0f, line_width);
-          line_strip_parent->set_screen_space_line_width(line_width);
-        }
-      }
-      break;
+        break;
+        default: break;
+        };
 
-      break;
-      default: break;
-      };
-
-  });
-  std::cout << "hello settings" << std::endl;
+    });
 
   gua::Renderer renderer;
 
@@ -366,13 +357,14 @@ int main(int argc, char** argv) {
 
     transform->set_transform(modelmatrix);
 
-    float norm_x = 50.0 * std::rand() / (float) RAND_MAX - 25.0;
+    float norm_x = 50.0 *  std::rand() / (float) RAND_MAX - 25.0;
     float norm_y = 50.0 * std::rand() / (float) RAND_MAX - 25.0;
     float norm_z = 50.0 * std::rand() / (float) RAND_MAX - 25.0;
 
     float rand_r = std::rand() / (float) RAND_MAX;
     float rand_g = std::rand() / (float) RAND_MAX;
     float rand_b = std::rand() / (float) RAND_MAX;
+
 
 /*
           if(line_strip_example_node->has_children()) { //work on grouped line strips
@@ -394,7 +386,6 @@ int main(int argc, char** argv) {
       window->close();
       loop.stop();
     } else {
-      std::cout << "hello draw" << std::endl;
       renderer.queue_draw({&graph});
     }
   });
