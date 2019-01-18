@@ -97,6 +97,7 @@ IF (GUACAMOLE_EXAMPLES)
   ENDIF (${PLUGIN_guacamole-nrp})
 
   IF (GUACAMOLE_ENABLE_VIRTUAL_TEXTURING)
+    add_subdirectory(projective_virtual_texturing)
     add_subdirectory(virtual_texturing)
   ENDIF (GUACAMOLE_ENABLE_VIRTUAL_TEXTURING)
 

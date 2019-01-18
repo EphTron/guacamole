@@ -30,12 +30,7 @@ struct matrix_package {
   uint32_t res_xy[2];
   int32_t camera_type; //mono = 0, left = 1, right = 2
   int32_t uuid;
-/*
-  void swap(matrix_package& rhs) {
-    modelview_matrix.swap(rhs.modelview_matrix);
-    projection_matrix.swap(rhs.projection_matrix);
-  }
-*/
+  bool calibration_request;
 };
 
 
@@ -121,6 +116,10 @@ public:
   //void push_matrix_package(bool is_camera, std::size_t view_uuid, bool is_stereo_mode, matrix_package mp);
   void push_matrix_package(spoints::camera_matrix_package const& cam_mat_package);
 
+  bool has_calibration(gua::RenderContext const& ctx) {
+    return m_received_calibration_[ctx.id].load();
+  }
+
 private:
   void readloop();
   //void sendfeedbackloop();
@@ -139,6 +138,9 @@ private:
 
   float m_voxel_size_ = 0.0;
   float m_voxel_size_back_ = 0.0;
+
+  std::atomic<bool> m_received_calibration;
+  mutable std::unordered_map<std::size_t,std::atomic<bool> > m_received_calibration_;
 
   std::atomic<bool> m_need_cpu_swap_;
   mutable std::unordered_map<std::size_t,std::atomic<bool> > m_need_gpu_swap_;
@@ -194,7 +196,8 @@ private:
   mutable std::unordered_map<std::size_t, scm::gl::vertex_array_ptr> point_layout_per_context_;
   mutable std::unordered_map<std::size_t, scm::gl::buffer_ptr> net_data_vbo_per_context_;
 
-  //  mutable std::unordered_map<std::size_t, std::size_t> num_points_to_draw_per_context_;
+  //used for attributeless rendering
+  mutable std::unordered_map<std::size_t, scm::gl::buffer_ptr> empty_vbo_per_context_;
 
   mutable std::unordered_map<std::size_t, scm::gl::texture_2d_ptr  > texture_atlas_per_context_;
 
