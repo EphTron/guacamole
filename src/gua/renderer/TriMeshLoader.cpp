@@ -18,6 +18,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.             *
  *                                                                            *
  ******************************************************************************/
+
 // class header
 #include <gua/renderer/TriMeshLoader.hpp>
 

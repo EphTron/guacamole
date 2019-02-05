@@ -183,7 +183,7 @@ void DynamicTriangleResource::ray_test(Ray const& ray, int options,
 
   float min_intersection = std::numeric_limits<float>::max();
   bool intersected(false);
-  
+  // std::cout << "before intersect (max)" << min_intersection << " " << Ray::END<< std::endl;
 
   std::array<math::vec3, 3> tri_vertices;
   //#pragma omp parallel for reduction(min:min_intersection) 
@@ -204,7 +204,9 @@ void DynamicTriangleResource::ray_test(Ray const& ray, int options,
     min_intersection = std::min(min_intersection, current_intersection) ;
   }
 
-  if (min_intersection < Ray::END) {
+  // if (min_intersection < Ray::END) {
+  if (min_intersection < std::numeric_limits<float>::max()) {
+    // std::cout << "length " << Ray::END << "   "<<min_intersection << std::endl;
     if (hits.empty() || min_intersection < hits.begin()->distance) {
       hits.clear();
       float const inf(std::numeric_limits<float>::max());
@@ -227,7 +229,7 @@ void DynamicTriangleResource::ray_test(Ray const& ray, int options,
                              tex_coords));
       intersected = true;
     }
-  } 
+  }
 
 }
 
@@ -254,6 +256,7 @@ float DynamicTriangleResource::intersect(std::array<math::vec3, 3> const& points
 
   // Find point on the line that intersects with the plane
   float t = -dist1 / (dist2 - dist1);
+  // std::cout << "t " << t << " " << Ray::END<< std::endl;
 
   if (t > ray.t_max_) {
     return Ray::END;
