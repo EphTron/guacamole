@@ -27,6 +27,39 @@ vec2 gua_get_quad_coords() {
 #endif
 
 void main() {
+
+  @material_input@
+  @include "common/gua_global_variable_assignment.glsl"
+
+  #if @enable_virtual_texturing@
+    gua_color = vec3(0.0, 1.0, 0.0);
+    gua_uvs.w = gua_current_vt_idx;
+  #else
+    gua_emissivity = 1.0;
+    gua_metalness = 0.0;
+    gua_color = vec3(1.0, 0.0, 0.0);
+    
+    gua_uvs.z = 0.0;
+    gua_uvs.w = 0;
+  #endif
+
+    //gua_color = vec3(1.0, 1.0, 1.0);
+  // normal mode or high fidelity shadows
+
+  if (gua_rendering_mode != 1) {
+    @material_method_calls_frag@
+  }
+
+  #if @enable_virtual_texturing@
+    writeVTCoords( int(gua_uvs.w) );
+  #else
+  #endif
+
+  submit_fragment(gl_FragCoord.z);
+}
+
+
+void ttttest22() {
   
   @material_input@
   @include "common/gua_global_variable_assignment.glsl"
