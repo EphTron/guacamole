@@ -32,33 +32,31 @@
 
 #include <vector>
 
-
-namespace gua {
-
-
+namespace gua
+{
 class TransformNode;
 
-using IndexTriplet = std::tuple<int,int,int>;
+using IndexTriplet = std::tuple<int, int, int>;
 
-struct DynamicGeometryObject {
+struct DynamicGeometryObject
+{
+    DynamicGeometryObject(unsigned int max_geometry_vertices = 10000)
+    {
+        vertex_position_database.reserve(max_geometry_vertices);
+        vertex_color_database.reserve(max_geometry_vertices);
+        vertex_thickness_database.reserve(max_geometry_vertices);
+        // vertex_normal_database.reserve(max_geometry_vertices);
+        vertex_uv_database.reserve(max_geometry_vertices);
+    }
 
-  DynamicGeometryObject(unsigned int max_geometry_vertices = 10000) {
-    vertex_position_database.reserve(max_geometry_vertices);
-    vertex_color_database.reserve(max_geometry_vertices);
-    vertex_thickness_database.reserve(max_geometry_vertices);
-    // vertex_normal_database.reserve(max_geometry_vertices);
-    vertex_uv_database.reserve(max_geometry_vertices);
+    std::vector<scm::math::vec3f> vertex_position_database;
+    std::vector<scm::math::vec4f> vertex_color_database;
+    std::vector<float> vertex_thickness_database;
+    // std::vector<scm::math::vec3f> vertex_normal_database;
+    std::vector<scm::math::vec2f> vertex_uv_database;
 
-  }
-
-  std::vector<scm::math::vec3f> vertex_position_database;
-  std::vector<scm::math::vec4f> vertex_color_database;
-  std::vector<float> 			vertex_thickness_database;
-  // std::vector<scm::math::vec3f> vertex_normal_database;
-  std::vector<scm::math::vec2f> vertex_uv_database;
-
-  //not used in the first version of the importer
-  std::vector<IndexTriplet> vertex_attribute_ids;
+    // not used in the first version of the importer
+    std::vector<IndexTriplet> vertex_attribute_ids;
 };
 
 // possible to do ableiten
@@ -66,32 +64,29 @@ struct DynamicGeometryObject {
 /**
  * @brief holds vertex information of one dynamic geometry
  */
-class GUA_DLL DynamicGeometryImporter {
-  // todo change name to creator instead of importer
+class GUA_DLL DynamicGeometryImporter
+{
+    // todo change name to creator instead of importer
 
-  friend class DynamicGeometry;
-  
+    friend class DynamicGeometry;
+
   public:
-
     void create_empty_dynamic_geometry(std::string const& empty_dynamic_geometry_name);
 
-    bool parsing_successful() const;	
-    
+    bool parsing_successful() const;
+
     int num_parsed_dynamic_geometries() const;
 
-	std::shared_ptr<DynamicGeometryObject> get_dynamic_geometry_object_ptr() const;
+    std::shared_ptr<DynamicGeometryObject> get_dynamic_geometry_object_ptr() const;
 
   private:
+    bool parsing_successful_ = false;
 
-  	bool parsing_successful_ = false;
+    int num_parsed_dynamic_geometries_ = 0;
 
-  	int num_parsed_dynamic_geometries_ = 0;
-
-  	std::shared_ptr<DynamicGeometryObject> dynamic_geometry_object_ptr_;
-
+    std::shared_ptr<DynamicGeometryObject> dynamic_geometry_object_ptr_;
 };
 
+} // namespace gua
 
-}
-
-#endif //GUA_DYNAMIC_GEOMETRY_IMPORTER_HPP
+#endif // GUA_DYNAMIC_GEOMETRY_IMPORTER_HPP

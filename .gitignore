@@ -72,6 +72,7 @@ examples/volumetric_point_and_line_rendering/example-volumetric_point_and_line_r
 install
 examples/picking/example-picking
 
+
 examples/ephra_simple/data/objects/plane.obj
 
 example-gazebo_scene
@@ -80,3 +81,6 @@ example-gazebo_scene
 
 
 examples/ephra_simple/example-ephra_simple
+
+example-volumetric_point_and_line_rendering
+

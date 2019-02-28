@@ -1,5 +1,5 @@
-#ifndef GUACAMOLE_PAGODA_LIGHT_H
-#define GUACAMOLE_PAGODA_LIGHT_H
+#ifndef GUACAMOLE_NRP_LIGHT_H
+#define GUACAMOLE_NRP_LIGHT_H
 
 #include <gazebo/common/Console.hh>
 #include <gazebo/common/common.hh>
@@ -34,6 +34,6 @@ class GUA_NRP_DLL NRPLight
     double _scale;
     scm::math::mat4d _direction;
 };
-}
-}
-#endif // GUACAMOLE_PAGODA_LIGHT_H
+} // namespace nrp
+} // namespace gua
+#endif // GUACAMOLE_NRP_LIGHT_H

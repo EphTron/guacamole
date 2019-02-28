@@ -1,5 +1,5 @@
-#ifndef GUACAMOLE_PAGODA_H
-#define GUACAMOLE_PAGODA_H
+#ifndef GUACAMOLE_NRP_H
+#define GUACAMOLE_NRP_H
 
 #include <functional>
 #include <list>
@@ -79,7 +79,7 @@ class GUA_NRP_DLL NRPBinder
     std::mutex _worker_mutex;
     std::condition_variable _worker_cv;
 
-    //NRPLog _log;
+    // NRPLog _log;
     NRPScene _scene;
 
     std::atomic_bool _scene_initialized;
@@ -99,7 +99,7 @@ class GUA_NRP_DLL NRPBinder
     void callback_scene(ConstScenePtr &ptr);
     void callback_response(ConstResponsePtr &ptr);
 };
-}
-}
+} // namespace nrp
+} // namespace gua
 
-#endif // GUACAMOLE_PAGODA_H
+#endif // GUACAMOLE_NRP_H

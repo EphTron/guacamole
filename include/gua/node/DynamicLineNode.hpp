@@ -27,102 +27,86 @@
 
 #include <gua/utils/DynamicGeometry.hpp>
 
-namespace gua {
-
+namespace gua
+{
 class DynamicGeometryResource;
 class DynamicLineResource;
 class DynamicGeometryLoader;
 class DynamicLineLoader;
 
-namespace node {
-
+namespace node
+{
 /**
  * This class is used to represent 3D dynamic geometry in the SceneGraph.
  *
  * \ingroup gua_scenegraph
  */
-class GUA_DLL DynamicLineNode : public DynamicGeometryNode {
+class GUA_DLL DynamicLineNode : public DynamicGeometryNode
+{
+  public: // typedef/enums/friends
+    friend class ::gua::DynamicGeometryLoader;
 
-public : // typedef/enums/friends
+    DynamicLineNode(std::string const& node_name = "",
+                    std::string const& geometry_description = "gua_default_geometry",
+                    std::shared_ptr<Material> const& material = nullptr,
+                    math::mat4 const& transform = math::mat4::identity());
 
-  friend class ::gua::DynamicGeometryLoader;
+  public: // methods
+    // ephra
+    /* inline void set_line_strip_render_mode(scm::gl::primitive_topology const& mode) {
+        if
 
-  DynamicLineNode(std::string const& node_name = "",
-                std::string const& geometry_description = "gua_default_geometry",
-                std::shared_ptr<Material> const& material = nullptr,
-                math::mat4 const& transform = math::mat4::identity());
+      }
+    */
 
-public : // methods
+    void enqueue_vertex(float x, float y, float z, float col_r = 0.0f, float col_g = 0.0f, float col_b = 0.0f, float col_a = 1.0f, float thickness = 1.0f);
 
-  // ephra
-  /* inline void set_line_strip_render_mode(scm::gl::primitive_topology const& mode) {
-      if
-      
-    }  
-  */
+    void push_vertex(DynamicGeometry::Vertex const& dynamic_vertex);
 
-  void enqueue_vertex(float x, float y, float z,
-                      float col_r = 0.0f, float col_g = 0.0f, float col_b = 0.0f, float col_a = 1.0f,
-                      float thickness = 1.0f);
+    void push_vertex(float x, float y, float z, float col_r = 0.0f, float col_g = 0.0f, float col_b = 0.0f, float col_a = 1.0f, float thickness = 1.0f);
 
-  void push_vertex(DynamicGeometry::Vertex const& dynamic_vertex);
+    void update_vertex(int vertex_idx, float x, float y, float z, float col_r = 0.0f, float col_g = 0.0f, float col_b = 0.0f, float col_a = 1.0f, float thickness = 1.0f);
 
-  void push_vertex(float x, float y, float z,
-                   float col_r = 0.0f, float col_g = 0.0f, float col_b = 0.0f, float col_a = 1.0f,
-                   float thickness = 1.0f);
+    void clear_vertices();
 
-  void update_vertex(int vertex_idx, float x, float y, float z,
-                     float col_r = 0.0f, float col_g = 0.0f, float col_b = 0.0f, float col_a = 1.0f,
-                     float thickness = 1.0f);
+    void forward_queued_vertices() override;
 
-  void clear_vertices();
+    /**
+     * Implements ray picking for a triangular mesh
+     */
+    void ray_test_impl(Ray const& ray, int options, Mask const& mask, std::set<PickResult>& hits) override;
 
-  void forward_queued_vertices() override;
+    /**
+     * Updates bounding box by accessing the ressource in the databse
+     */
+    void update_bounding_box() const override;
 
-  /**
-  * Implements ray picking for a triangular mesh
-  */
-  void ray_test_impl(Ray const& ray,
-                     int options,
-                     Mask const& mask,
-                     std::set<PickResult>& hits) override;
+    std::shared_ptr<DynamicGeometryResource> const& get_geometry() const override;
 
-  /**
-  * Updates bounding box by accessing the ressource in the databse
-  */
-  void update_bounding_box() const override;
+    bool get_trigger_update() const { return trigger_update_; }
+    void set_trigger_update(bool trigger_update) { trigger_update_ = trigger_update; }
 
+    /**
+     * Accepts a visitor and calls concrete visit method.
+     *
+     * This method implements the visitor pattern for Nodes.
+     *
+     * \param visitor  A visitor to process the GeometryNode's data.
+     */
+    void accept(NodeVisitor& visitor) override;
 
-  std::shared_ptr<DynamicGeometryResource> const& get_geometry() const override;
+  protected:
+    std::shared_ptr<Node> copy() const override;
 
-  bool get_trigger_update() const {return trigger_update_;}
-  void set_trigger_update(bool trigger_update) {trigger_update_ = trigger_update;}
-
-
-  /**
-   * Accepts a visitor and calls concrete visit method.
-   *
-   * This method implements the visitor pattern for Nodes.
-   *
-   * \param visitor  A visitor to process the GeometryNode's data.
-   */
-  void accept(NodeVisitor& visitor) override;
-
- protected:
-
-  std::shared_ptr<Node> copy() const override;
-
-  private: //methods
+  private: // methods
     void update_geometry_cache(::gua::GeometryDescription const& desc) override;
 
-    //void set_geometry(std::shared_ptr<DynamicGeometryResource> res) override;
+    // void set_geometry(std::shared_ptr<DynamicGeometryResource> res) override;
 
- private:  // attributes e.g. special attributes for drawing
-
-
+  private: // attributes e.g. special attributes for drawing
 };
 
-} // namespace node {
-} // namespace gua {
+} // namespace node
+} // namespace gua
 
-#endif  // GUA_DYNAMIC_LINE_NODE_HPP
+#endif // GUA_DYNAMIC_LINE_NODE_HPP

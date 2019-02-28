@@ -33,22 +33,24 @@
 #include <list>
 #include <memory>
 
-namespace Assimp { class Importer; }
+namespace Assimp
+{
+class Importer;
+}
 struct aiScene;
 struct aiNode;
 
-namespace gua {
+namespace gua
+{
+class GeometryDescription;
 
-  class GeometryDescription;
-
-namespace node {
+namespace node
+{
 class Node;
 class InnerNode;
 class GeometryNode;
 class DynamicGeometryNode;
-}
-
-  
+} // namespace node
 
 /**
  * Loads and draws dynamic geometries.
@@ -56,94 +58,74 @@ class DynamicGeometryNode;
  * This class can load dynamic geometry data from files and display them in multiple
  * contexts. A DynamicGeometryLoader object is made of several DynamicGeometry objects.
  */
-class GUA_DLL DynamicGeometryLoader {
+class GUA_DLL DynamicGeometryLoader
+{
+  public: // typedefs, enums
+    enum Flags
+    {
+        DEFAULTS = 0,
+        MAKE_PICKABLE = 1 << 2,
+        NORMALIZE_POSITION = 1 << 3,
+        NORMALIZE_SCALE = 1 << 4,
+        NO_SHARED_MATERIALS = 1 << 5
+    };
 
- public: // typedefs, enums
+  public:
+    /**
+     * Default constructor.
+     *
+     * Constructs a new and empty MeshLoader.
+     */
+    DynamicGeometryLoader();
 
-   enum Flags {
-     DEFAULTS = 0,
-     MAKE_PICKABLE = 1 << 2,
-     NORMALIZE_POSITION = 1 << 3,
-     NORMALIZE_SCALE = 1 << 4,
-     NO_SHARED_MATERIALS = 1 << 5
-   };
+    /**
+     *
+     */
+    std::shared_ptr<node::Node> load_geometry(std::string const& file_name, unsigned flags = DEFAULTS, bool create_empty = false);
 
-public:
+    /**
+     *
+     */
+    std::shared_ptr<node::Node> create_empty_geometry(std::string const& node_name, std::string const& empty_name, std::shared_ptr<Material> const& fallback_material, unsigned flags = DEFAULTS);
 
-  /**
-   * Default constructor.
-   *
-   * Constructs a new and empty MeshLoader.
-   */
-   DynamicGeometryLoader();
+    /**
+     *
+     */
+    std::shared_ptr<node::Node> create_empty_geometry(std::string const& node_name, std::string const& empty_name, unsigned flags = DEFAULTS);
 
-   /**
-   *
-   */
-   std::shared_ptr<node::Node> load_geometry(std::string const& file_name,
-                                             unsigned flags = DEFAULTS,
-                                             bool create_empty = false);
+    /**
+     * Constructor from a file.
+     *
+     * Creates a new DynamicGeometryLoader from a given file.
+     *
+     * \param file_name        The file to load the meshs data from.
+     * \param material_name    The material name that was set to the parent node
+     */
+    std::shared_ptr<node::Node> load(std::string const& file_name, unsigned flags, bool create_geometries, bool create_empty);
 
-   /**
-   *
-   */
-   std::shared_ptr<node::Node> create_empty_geometry(std::string const& node_name,
-                                                    std::string const& empty_name,
-                                                    std::shared_ptr<Material> const& fallback_material,
-                                                    unsigned flags = DEFAULTS);
+    /**
+     * Constructor from memory buffer.
+     *
+     * Creates a new DynamicGeometryLoader from a existing memory buffer.
+     *
+     * \param buffer_name      The buffer to load the meh's data from.
+     * \param buffer_size      The buffer's size.
+     */
+    std::vector<DynamicGeometryResource*> const load_from_buffer(char const* buffer_name, unsigned buffer_size, bool build_kd_tree);
+    /**
+     *
+     */
+    int is_supported(std::string const& file_name) const;
 
-   /**
-   *
-   */
-   std::shared_ptr<node::Node> create_empty_geometry(std::string const& node_name,
-                                                    std::string const& empty_name,
-                                                    unsigned flags = DEFAULTS);
+  private: // methods
+    virtual std::shared_ptr<gua::node::DynamicGeometryNode> create_geometry_instance(std::shared_ptr<DynamicGeometryImporter> importer, GeometryDescription const& desc, unsigned flags) = 0;
 
+    static void apply_fallback_material(std::shared_ptr<node::Node> const& root, std::shared_ptr<Material> const& fallback_material, bool no_shared_materials);
 
-  /**
-   * Constructor from a file.
-   *
-   * Creates a new DynamicGeometryLoader from a given file.
-   *
-   * \param file_name        The file to load the meshs data from.
-   * \param material_name    The material name that was set to the parent node
-  */
-  std::shared_ptr<node::Node> load(std::string const& file_name,
-                                  unsigned flags,
-                                  bool create_geometries,
-                                  bool create_empty);
-
-  /**
-   * Constructor from memory buffer.
-   *
-   * Creates a new DynamicGeometryLoader from a existing memory buffer.
-   *
-   * \param buffer_name      The buffer to load the meh's data from.
-   * \param buffer_size      The buffer's size.
-   */
-  std::vector<DynamicGeometryResource*> const load_from_buffer(char const* buffer_name,
-                                                        unsigned buffer_size,
-                                                        bool build_kd_tree);
-  /**
-  *
-  */
-  int is_supported(std::string const& file_name) const;
- private: // methods
-
-  virtual std::shared_ptr<gua::node::DynamicGeometryNode> create_geometry_instance(std::shared_ptr<DynamicGeometryImporter> importer, 
-                GeometryDescription const& desc,
-                unsigned flags)=0;
-
-  static void apply_fallback_material(std::shared_ptr<node::Node> const& root,
-                std::shared_ptr<Material> const& fallback_material,
-                bool no_shared_materials);
-
-
-private: // attributes
-
-  static std::unordered_map<std::string, std::shared_ptr<::gua::node::Node>> loaded_files_;
+  private: // attributes
+    static std::unordered_map<std::string, std::shared_ptr<::gua::node::Node>> loaded_files_;
 };
 
-}
+} // namespace gua
 
-#endif  // GUA_DYNAMIC_GEOMETRY_LOADER_HPP
+#endif // GUA_DYNAMIC_GEOMETRY_LOADER_HPP

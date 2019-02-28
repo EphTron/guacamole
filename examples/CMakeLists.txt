@@ -18,7 +18,6 @@ IF (GUACAMOLE_EXAMPLES)
     add_subdirectory(volumetric_point_and_line_rendering)
   ENDIF (${GUACAMOLE_GLFW3})
 
-
   IF (${PLUGIN_guacamole-spoints})
     add_subdirectory(avatars_in_industry)
   ENDIF (${PLUGIN_guacamole-spoints})
@@ -92,9 +91,9 @@ IF (GUACAMOLE_EXAMPLES)
     add_subdirectory(physics)
   ENDIF (GUACAMOLE_ENABLE_PHYSICS)
 
-  IF (${PLUGIN_guacamole-nrp})
-    add_subdirectory(gazebo_scene)
-  ENDIF (${PLUGIN_guacamole-nrp})
+  IF (${PLUGIN_guacamole-nrp} AND ${PLUGIN_guacamole-video3d})
+    add_subdirectory(nrp_scene)
+  ENDIF (${PLUGIN_guacamole-nrp} AND ${PLUGIN_guacamole-video3d})
 
   IF (GUACAMOLE_ENABLE_VIRTUAL_TEXTURING)
     add_subdirectory(projective_virtual_texturing)

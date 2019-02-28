@@ -36,78 +36,44 @@
 
 #include <lamure/prov/aux.h>
 
-namespace gua {
+namespace gua
+{
+OctreeNode::OctreeNode()
+    : idx_(0), child_mask_(0) // char r_, g_, b_, child_mask_
+      ,
+      child_idx_(0) // idx of first child
+      ,
+      min_(std::numeric_limits<float>::max()), max_(std::numeric_limits<float>::lowest()), fotos_()
+{
+}
 
+OctreeNode::OctreeNode(uint64_t _idx, uint32_t _child_mask, uint32_t _child_idx, const scm::math::vec3f& _min, const scm::math::vec3f& _max, const std::set<uint32_t>& _fotos)
+    : idx_(_idx), child_mask_(_child_mask), child_idx_(_child_idx), min_(_min), max_(_max), fotos_(_fotos)
+{
+}
 
-    OctreeNode::OctreeNode()
-        : idx_(0)
-        , child_mask_(0)   //char r_, g_, b_, child_mask_
-        , child_idx_(0)    //idx of first child
-        , min_(std::numeric_limits<float>::max())
-        , max_(std::numeric_limits<float>::lowest())
-        , fotos_()
-    { }
+void OctreeNode::test_wrapping() const { std::cout << "The wrapped function in gua has been called!" << std::endl; }
 
-    OctreeNode::OctreeNode(uint64_t _idx, uint32_t _child_mask, uint32_t _child_idx,
-                           const scm::math::vec3f& _min, const scm::math::vec3f& _max,
-                           const std::set<uint32_t>& _fotos)
-        : idx_(_idx)
-        , child_mask_(_child_mask)
-        , child_idx_(_child_idx)
-        , min_(_min)
-        , max_(_max)
-        , fotos_(_fotos)
-    { }
+uint64_t OctreeNode::get_idx() const { return idx_; }
 
+uint32_t OctreeNode::get_child_mask() const { return child_mask_; }
 
-    void
-    OctreeNode::test_wrapping() const {
-        std::cout << "The wrapped function in gua has been called!" << std::endl;
+uint32_t OctreeNode::get_child_idx() const { return child_idx_; }
+
+const scm::math::vec3f& OctreeNode::get_min() const { return min_; }
+
+const scm::math::vec3f& OctreeNode::get_max() const { return max_; }
+
+const std::set<uint32_t>& OctreeNode::get_fotos() const { return fotos_; }
+
+uint32_t OctreeNode::get_fotos_size() const { return fotos_.size(); }
+
+uint32_t OctreeNode::get_foto_by_id(uint32_t id) const
+{
+    if(id > 0 && id < fotos_.size())
+    {
+        return *std::next(fotos_.begin(), id);
     }
-
-    uint64_t
-    OctreeNode::get_idx() const {
-        return idx_;
-    }
-
-    uint32_t
-    OctreeNode::get_child_mask() const {
-        return child_mask_;
-    }
-
-    uint32_t
-    OctreeNode::get_child_idx() const {
-        return child_idx_;
-    }
-
-    const scm::math::vec3f&
-    OctreeNode::get_min() const {
-        return min_;
-    }
-
-    const scm::math::vec3f&
-    OctreeNode::get_max() const {
-        return max_;
-    }
-
-    const std::set<uint32_t>&
-    OctreeNode::get_fotos() const {
-        return fotos_;
-    }
-
-
-    uint32_t
-    OctreeNode::get_fotos_size() const {
-        return fotos_.size();
-    }
-
-    uint32_t
-    OctreeNode::get_foto_by_id(uint32_t id) const {
-        if (id > 0 && id < fotos_.size()){
-            return *std::next(fotos_.begin(), id);
-        }
-    }
-
+}
 
 } // namespace gua
-

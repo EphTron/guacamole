@@ -36,8 +36,8 @@
 
 #include <vector>
 
-namespace gua {
-
+namespace gua
+{
 struct RenderContext;
 class DynamicGeometryResource;
 
@@ -50,97 +50,86 @@ class DynamicGeometryResource;
  * store the individual meshes of a file.
  */
 
-class DynamicGeometryResource : public GeometryResource {
- public:
+class DynamicGeometryResource : public GeometryResource
+{
+  public:
+    /**
+     * Default constructor.
+     *
+     * Creates a new and empty DynamicGeometryResource.
+     */
+    DynamicGeometryResource(scm::gl::primitive_topology vertex_rendering_mode);
 
-  /**
-   * Default constructor.
-   *
-   * Creates a new and empty DynamicGeometryResource.
-   */
-   DynamicGeometryResource(scm::gl::primitive_topology vertex_rendering_mode);
+    /**
+     * Constructor from an *.lob strip.
+     *
+     * Initializes the strip from a given *.lob strip.
+     *
+     * \param mesh             The dynamic geometry to load the data from.
+     */
+    DynamicGeometryResource(std::shared_ptr<DynamicGeometry> dynamic_geometry_ptr, bool build_kd_tree, scm::gl::primitive_topology vertex_rendering_mode);
 
-  /**
-   * Constructor from an *.lob strip.
-   *
-   * Initializes the strip from a given *.lob strip.
-   *
-   * \param mesh             The dynamic geometry to load the data from.
-   */
-   DynamicGeometryResource(std::shared_ptr<DynamicGeometry> dynamic_geometry_ptr, bool build_kd_tree, scm::gl::primitive_topology vertex_rendering_mode);
+    // TODO conrstuct with
 
-   //TODO conrstuct with
+    /**
+     * Draws the dynamic geometry.
+     *
+     * Draws the dynamic geometry to the given context.
+     *
+     * \param context          The RenderContext to draw onto.
+     */
+    virtual void draw(RenderContext& context) const = 0;
 
-  /**
-   * Draws the dynamic geometry.
-   *
-   * Draws the dynamic geometry to the given context.
-   *
-   * \param context          The RenderContext to draw onto.
-   */
-  virtual void draw(RenderContext& context) const=0;
+    void ray_test(Ray const& ray, int options, node::Node* owner, std::set<PickResult>& hits) override;
 
+    // void resolve_vertex_updates(RenderContext& ctx);
 
-  void ray_test(Ray const& ray, int options,
-                node::Node* owner, std::set<PickResult>& hits) override;
+    void make_clean_flags_dirty();
 
-  //void resolve_vertex_updates(RenderContext& ctx);
+    void compute_bounding_box();
 
-  void make_clean_flags_dirty();
+    inline unsigned int num_occupied_vertex_slots() const { return dynamic_geometry_ptr_->num_occupied_vertex_slots; }
+    inline unsigned int vertex_reservoir_size() const { return dynamic_geometry_ptr_->vertex_reservoir_size; }
 
-  void compute_bounding_box();
+    void compute_consistent_normals() const;
 
-  inline unsigned int num_occupied_vertex_slots() const { return dynamic_geometry_ptr_->num_occupied_vertex_slots; }
-  inline unsigned int vertex_reservoir_size() const { return dynamic_geometry_ptr_->vertex_reservoir_size; }
-  
-  void compute_consistent_normals() const;
+    void compile_buffer_string(std::string& buffer_string);
+    void uncompile_buffer_string(std::string const& buffer_string);
 
-  void compile_buffer_string(std::string& buffer_string);
-  void uncompile_buffer_string(std::string const& buffer_string);
+    void push_vertex(DynamicGeometry::Vertex const& in_vertex);
+    void pop_front_vertex();
+    void pop_back_vertex();
 
-  void push_vertex(DynamicGeometry::Vertex const& in_vertex);
-  void pop_front_vertex();
-  void pop_back_vertex();
+    void clear_vertices();
 
-  void clear_vertices();
+    // ephra
+    void set_vertex_rendering_mode(scm::gl::primitive_topology const& render_mode);
 
-  //ephra
-  void set_vertex_rendering_mode(scm::gl::primitive_topology const& render_mode);
+    void forward_queued_vertices(std::vector<scm::math::vec3f> const& queued_positions,
+                                 std::vector<scm::math::vec4f> const& queued_colors,
+                                 std::vector<float> const& queued_thicknesses //,
+                                 // std::vector<scm::math::vec3f> const& queued_normals
+    );
 
-  void forward_queued_vertices(std::vector<scm::math::vec3f> const& queued_positions,
-                               std::vector<scm::math::vec4f> const& queued_colors,
-                               std::vector<float> const& queued_thicknesses//,
-                               //std::vector<scm::math::vec3f> const& queued_normals
-                               );
+    math::vec3 get_vertex(unsigned int i) const;
 
-  math::vec3 get_vertex(unsigned int i) const;
-
- protected:
+  protected:
     KDTree kd_tree_;
     mutable std::mutex dynamic_geometry_update_mutex_;
     scm::gl::primitive_topology vertex_rendering_mode_; //= scm::gl::PRIMITIVE_LINE_STRIP_ADJACENCY;
-  //  alternativ muss es zu scm::gl::PRIMITIVE_LINE_LIST gesetzt werde koennen
+    //  alternativ muss es zu scm::gl::PRIMITIVE_LINE_LIST gesetzt werde koennen
 
+    mutable std::map<unsigned, bool> clean_flags_per_context_;
+    std::shared_ptr<DynamicGeometry> dynamic_geometry_ptr_;
 
+  private:
+    virtual void upload_to(RenderContext& context) const;
 
-  mutable std::map<unsigned, bool> clean_flags_per_context_;
-  std::shared_ptr<DynamicGeometry> dynamic_geometry_ptr_;
- private:
+    // ephra
 
-
-
-  virtual void upload_to(RenderContext& context) const;
-
-  
-  
-
-  // ephra
-  
-
-  //std::vector<dynamic_geometry_update_job*> dynamic_geometry_update_queue_;
-
+    // std::vector<dynamic_geometry_update_job*> dynamic_geometry_update_queue_;
 };
 
-}
+} // namespace gua
 
-#endif  // GUA_DYNAMIC_GEOMETRY_RESOURCE_HPP
+#endif // GUA_DYNAMIC_GEOMETRY_RESOURCE_HPP
