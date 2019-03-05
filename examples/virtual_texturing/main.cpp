@@ -73,8 +73,11 @@ void set_window_default(std::shared_ptr<gua::WindowBase> const& window, gua::mat
 
 int main(int argc, char** argv)
 {
-    std::string vt_model_path = "/opt/3d_models/virtual_texturing/earth_86400x43200_smooth_normals.obj";
-    std::string vt_texture_path = "/opt/3d_models/virtual_texturing/earth_colour_86400x43200_256x256_1_rgb.atlas";
+    //std::string vt_model_path = "/opt/3d_models/virtual_texturing/earth_86400x43200_smooth_normals.obj";
+    std::string vt_model_path = "/home/ephtron/Documents/master-render-files/e_vive_controller/vive_controller.obj";
+
+    // std::string vt_texture_path = "/opt/3d_models/virtual_texturing/earth_colour_86400x43200_256x256_1_rgb.atlas";
+    std::string vt_texture_path = "/home/ephtron/Documents/master-render-files/salem/salem.atlas";
 
     if(argc < 3)
     {
@@ -132,11 +135,11 @@ int main(int argc, char** argv)
 
     */
 
-    auto money_transform = graph.add_node<gua::node::TransformNode>("/transform", "money_transform");
-    auto money_geode(loader.create_geometry_from_file(
-        "money", "/opt/3d_models/50cent/50Cent.obj", gua::TriMeshLoader::LOAD_MATERIALS | gua::TriMeshLoader::NORMALIZE_POSITION | gua::TriMeshLoader::NORMALIZE_SCALE));
+    // auto money_transform = graph.add_node<gua::node::TransformNode>("/transform", "money_transform");
+    // auto money_geode(loader.create_geometry_from_file(
+    //     "money", "/opt/3d_models/50cent/50Cent.obj", gua::TriMeshLoader::LOAD_MATERIALS | gua::TriMeshLoader::NORMALIZE_POSITION | gua::TriMeshLoader::NORMALIZE_SCALE));
 
-    graph.add_node("/transform/money_transform", money_geode);
+    // graph.add_node("/transform/money_transform", money_geode);
 
     auto light = graph.add_node<gua::node::LightNode>("/", "light2");
     light->data.set_type(gua::node::LightNode::Type::POINT);
@@ -238,7 +241,7 @@ int main(int argc, char** argv)
 
         earth_geode_1->set_transform(scm::math::make_rotation(extra_rotation, 0.0, 1.0, 0.0));
         // earth_geode_2->set_transform(scm::math::make_rotation(extra_rotation, 1.0, 1.0, 0.0) );
-        money_transform->set_transform(scm::math::make_rotation(45 * std::sin(extra_rotation * 3.0), 1.0, 0.0, 0.0));
+        // money_transform->set_transform(scm::math::make_rotation(45 * std::sin(extra_rotation * 3.0), 1.0, 0.0, 0.0));
 
         transform->set_transform(manipulation_matrix);
 
