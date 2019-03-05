@@ -29,6 +29,7 @@
 #include <gua/virtual_texturing/VTBackend.hpp>
 
 #include <gua/utils/Trackball.hpp>
+#include <GLFW/glfw3.h>
 
 // forward mouse interaction to trackball
 void mouse_button(gua::utils::Trackball& trackball, int mousebutton, int action, int mods)
@@ -72,8 +73,11 @@ void set_window_default(std::shared_ptr<gua::WindowBase> const& window, gua::mat
 
 int main(int argc, char** argv)
 {
-    std::string vt_model_path = "/opt/3d_models/virtual_texturing/earth_86400x43200_smooth_normals.obj";
-    std::string vt_texture_path = "/opt/3d_models/virtual_texturing/earth_colour_86400x43200_256x256_1_rgb.atlas";
+    //std::string vt_model_path = "/opt/3d_models/virtual_texturing/earth_86400x43200_smooth_normals.obj";
+    std::string vt_model_path = "/home/ephtron/Documents/master-render-files/e_vive_controller/vive_controller.obj";
+
+    // std::string vt_texture_path = "/opt/3d_models/virtual_texturing/earth_colour_86400x43200_256x256_1_rgb.atlas";
+    std::string vt_texture_path = "/home/ephtron/Documents/master-render-files/salem/salem.atlas";
 
     if(argc < 3)
     {
@@ -131,11 +135,11 @@ int main(int argc, char** argv)
 
     */
 
-    auto money_transform = graph.add_node<gua::node::TransformNode>("/transform", "money_transform");
-    auto money_geode(loader.create_geometry_from_file(
-        "money", "/opt/3d_models/50cent/50Cent.obj", gua::TriMeshLoader::LOAD_MATERIALS | gua::TriMeshLoader::NORMALIZE_POSITION | gua::TriMeshLoader::NORMALIZE_SCALE));
+    // auto money_transform = graph.add_node<gua::node::TransformNode>("/transform", "money_transform");
+    // auto money_geode(loader.create_geometry_from_file(
+    //     "money", "/opt/3d_models/50cent/50Cent.obj", gua::TriMeshLoader::LOAD_MATERIALS | gua::TriMeshLoader::NORMALIZE_POSITION | gua::TriMeshLoader::NORMALIZE_SCALE));
 
-    graph.add_node("/transform/money_transform", money_geode);
+    // graph.add_node("/transform/money_transform", money_geode);
 
     auto light = graph.add_node<gua::node::LightNode>("/", "light2");
     light->data.set_type(gua::node::LightNode::Type::POINT);
@@ -170,6 +174,8 @@ int main(int argc, char** argv)
     pipe->add_pass(resolve_pass);
     camera->set_pipeline_description(pipe);
 
+    bool should_close = false;
+
     auto add_window = [&](std::string const& window_name, std::shared_ptr<gua::node::CameraNode> const& cam_node) -> std::shared_ptr<gua::GlfwWindow> {
         auto window = std::make_shared<gua::GlfwWindow>();
         gua::WindowDatabase::instance()->add(window_name, window);
@@ -184,7 +190,12 @@ int main(int argc, char** argv)
 
         window->on_move_cursor.connect([&](gua::math::vec2 const& pos) { trackball.motion(pos.x, pos.y); });
         window->on_button_press.connect(std::bind(mouse_button, std::ref(trackball), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-
+        window->on_key_press.connect([&](int key, int scancode, int action, int mods) {
+            if(key == GLFW_KEY_ESCAPE)
+            {
+                should_close = true;
+            }
+        });
         return window;
     };
 
@@ -230,22 +241,22 @@ int main(int argc, char** argv)
 
         earth_geode_1->set_transform(scm::math::make_rotation(extra_rotation, 0.0, 1.0, 0.0));
         // earth_geode_2->set_transform(scm::math::make_rotation(extra_rotation, 1.0, 1.0, 0.0) );
-        money_transform->set_transform(scm::math::make_rotation(45 * std::sin(extra_rotation * 3.0), 1.0, 0.0, 0.0));
+        // money_transform->set_transform(scm::math::make_rotation(45 * std::sin(extra_rotation * 3.0), 1.0, 0.0, 0.0));
 
         transform->set_transform(manipulation_matrix);
 
-        if(main_window->should_close() || secondary_window->should_close())
+        if(main_window->should_close() || secondary_window->should_close() || should_close)
         {
+            vt_backend->stop_backend();
             renderer.stop();
             main_window->close();
             secondary_window->close();
             loop.stop();
-            vt_backend->stop_backend();
         }
         else
         {
-            main_window->process_events();
-            secondary_window->process_events();
+            // main_window->process_events();
+            // secondary_window->process_events();
             renderer.queue_draw({&graph});
         }
         /*

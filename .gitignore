@@ -72,15 +72,13 @@ examples/volumetric_point_and_line_rendering/example-volumetric_point_and_line_r
 install
 examples/picking/example-picking
 
-
 examples/ephra_simple/data/objects/plane.obj
-
-example-gazebo_scene
 
 .idea
 
-
 examples/ephra_simple/example-ephra_simple
-
-example-volumetric_point_and_line_rendering
+examples/volumetric_point_and_line_rendering/example-volumetric_point_and_line_rendering
+examples/nrp_scene/example-nrp_scene
+examples/projective_virtual_texturing/example-projective_virtual_texturing
+examples/virtual_texturing/example-virtual_texturing
 
