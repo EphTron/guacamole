@@ -163,7 +163,7 @@ vec4 traverse_idx_hierarchy(float lambda, vec2 texture_coordinates, usampler2D i
         c = mix_colors(positions, desired_level, texture_coordinates, mix_ratio, max_level);
     }
 
-    if( int(gl_FragCoord.x) % 64 == 0 && int(gl_FragCoord.y) % 64 == 0 )
+    if( int(gl_FragCoord.x) % 4 == 0 && int(gl_FragCoord.y) % 4 == 0 )
     {
         int feedback_value = desired_level;
         update_feedback(feedback_value, positions.child_idx);
@@ -205,8 +205,7 @@ void main() {
 
       vec4 virtual_texturing_color = traverse_idx_hierarchy(-dxdy(), sampled_uv_coords, index_texture_mip_map_to_sample, max_level);
       gua_color = virtual_texturing_color.rgb;
-      //gua_alpha = virtual_texturing_color.a;
-      gua_alpha = 0.5;
+      gua_alpha = virtual_texturing_color.a;
  #endif
 
   submit_fragment(gl_FragCoord.z);
