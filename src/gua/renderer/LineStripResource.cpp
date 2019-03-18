@@ -113,22 +113,30 @@ void LineStripResource::upload_to(RenderContext &ctx) const
 
     if(line_strip_to_update_ptr->current_buffer_size_in_vertices < line_strip_.vertex_reservoir_size + 3)
     {
-        line_strip_to_update_ptr->vertices =
-            ctx.render_device->create_buffer(scm::gl::BIND_VERTEX_BUFFER, scm::gl::USAGE_DYNAMIC_DRAW, (line_strip_.vertex_reservoir_size + 3) * sizeof(LineStrip::Vertex), 0);
 
-        line_strip_to_update_ptr->current_buffer_size_in_vertices = line_strip_.vertex_reservoir_size + 3;
+        int const num_vertices_to_allocate = std::max(line_strip_.vertex_reservoir_size + 3, 500003);
+
+        std::cout << " create buffer " << (line_strip_.vertex_reservoir_size + 3) * sizeof(LineStrip::Vertex) << std::endl;
+        line_strip_to_update_ptr->vertices =
+            ctx.render_device->create_buffer(scm::gl::BIND_VERTEX_BUFFER, 
+                                             scm::gl::USAGE_DYNAMIC_DRAW, 
+                                             num_vertices_to_allocate * sizeof(LineStrip::Vertex),
+                                             0);
+
+        line_strip_to_update_ptr->current_buffer_size_in_vertices = num_vertices_to_allocate;
     }
     else
     {
         update_cached_linestrip = true;
     }
 
-    if(line_strip_.vertex_reservoir_size != 0)
+    if(line_strip_.vertex_reservoir_size != 0 && line_strip_.num_occupied_vertex_slots > 0)
     {
         LineStrip::Vertex *data(static_cast<LineStrip::Vertex *>(ctx.render_context->map_buffer(line_strip_to_update_ptr->vertices, scm::gl::ACCESS_WRITE_INVALIDATE_BUFFER)));
 
         line_strip_.copy_to_buffer(data);
         ctx.render_context->unmap_buffer(line_strip_to_update_ptr->vertices);
+
 
         line_strip_to_update_ptr->vertex_array = ctx.render_device->create_vertex_array(line_strip_.get_vertex_format(), {line_strip_to_update_ptr->vertices});
     }
