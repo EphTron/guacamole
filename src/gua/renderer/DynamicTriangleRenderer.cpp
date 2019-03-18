@@ -60,9 +60,8 @@ namespace gua
 ////////////////////////////////////////////////////////////////////////////////
 
 DynamicTriangleRenderer::DynamicTriangleRenderer(RenderContext const &ctx, SubstitutionMap const &smap)
-    : rs_cull_back_(ctx.render_device->create_rasterizer_state(scm::gl::FILL_SOLID, scm::gl::CULL_NONE))
-      // : rs_cull_back_(ctx.render_device->create_rasterizer_state(scm::gl::FILL_SOLID, scm::gl::CULL_BACK))
-      ,
+    //: rs_cull_back_(ctx.render_device->create_rasterizer_state(scm::gl::FILL_SOLID, scm::gl::CULL_NONE))
+    : rs_cull_back_(ctx.render_device->create_rasterizer_state(scm::gl::FILL_SOLID, scm::gl::CULL_BACK, scm::gl::ORIENT_CCW)),
       rs_cull_none_(ctx.render_device->create_rasterizer_state(scm::gl::FILL_SOLID, scm::gl::CULL_NONE)),
       rs_wireframe_cull_back_(ctx.render_device->create_rasterizer_state(scm::gl::FILL_WIREFRAME, scm::gl::CULL_BACK)),
       rs_wireframe_cull_none_(ctx.render_device->create_rasterizer_state(scm::gl::FILL_WIREFRAME, scm::gl::CULL_NONE)), program_stages_(), programs_(), volumetric_point_programs_(),
@@ -243,7 +242,7 @@ void DynamicTriangleRenderer::render(Pipeline &pipe, PipelinePassDescription con
                     }
                     else
                     {
-                        current_rasterizer_state = rs_cull_none_;
+                        current_rasterizer_state = rs_cull_back_;
                     }
                 }
                 else
