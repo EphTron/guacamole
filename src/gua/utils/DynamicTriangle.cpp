@@ -154,21 +154,20 @@ void DynamicTriangle::compile_buffer_string(std::string& buffer_string)
     write_offset += size_of_uvs;
 
     buffer_string = tmp_string;
-    std::cout<<"dt compile buffer" << std::endl;
 }
 
 void DynamicTriangle::uncompile_buffer_string(std::string const& buffer_string)
 {
-    std::cout << "dyn tri uncompile_buffer_string" <<std::endl;
     uint64_t num_vertices_written = 0;
     uint64_t read_offset = 0;
+
 
     if(buffer_string.size() >= sizeof(uint64_t))
     {
         memcpy(&num_vertices_written, &buffer_string[0], sizeof(num_vertices_written));
     }
 
-    if(buffer_string.size() != num_vertices_written * sizeof(Vertex) + sizeof(uint64_t))
+    if(buffer_string.size() != num_vertices_written * sizeof(TriVertex) + sizeof(uint64_t))
     {
         Logger::LOG_WARNING << "Buffer String size and expected size are not consistent! Ignoring dynamic triangle update." << std::endl;
         return;
@@ -281,9 +280,7 @@ void DynamicTriangle::forward_queued_vertices(std::vector<scm::math::vec3f> cons
                                               std::vector<float> const& queued_thicknesses,
                                               std::vector<scm::math::vec2f> const& queued_uvs)
 {
-    std::cout << "############# FORWARDING " << queued_uvs.size() << std::endl;
     uvs = queued_uvs;
-
     DynamicGeometry::forward_queued_vertices(queued_positions, queued_colors, queued_thicknesses);
 }
 

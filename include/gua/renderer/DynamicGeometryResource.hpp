@@ -93,8 +93,8 @@ class DynamicGeometryResource : public GeometryResource
 
     void compute_consistent_normals() const;
 
-    void compile_buffer_string(std::string& buffer_string);
-    void uncompile_buffer_string(std::string const& buffer_string);
+    virtual void compile_buffer_string(std::string& buffer_string) = 0;
+    virtual void uncompile_buffer_string(std::string const& buffer_string) = 0;
 
     void push_vertex(DynamicGeometry::Vertex const& in_vertex);
     void pop_front_vertex();

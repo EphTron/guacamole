@@ -228,7 +228,7 @@ void DynamicTriangleNode::update_vertex(int vertex_idx, float x, float y, float 
         }
         else
         {
-            std::cout << "Vertex index doesnt exist." << std::endl;
+            gua::Logger::LOG_ERROR << "Vertex index doesnt exist." << std::endl;
         }
     }
 }
@@ -251,7 +251,6 @@ void DynamicTriangleNode::forward_queued_vertices()
 {
     if(nullptr != geometry_)
     {
-        std::cout << " FORWARDING" << std::endl;
         auto tri_geometry = std::dynamic_pointer_cast<DynamicTriangleResource>(geometry_);
         tri_geometry->forward_queued_vertices(queued_positions_, 
                                               queued_colors_, 
@@ -267,10 +266,11 @@ void DynamicTriangleNode::forward_queued_vertices()
 //   geometry_ = res;
 // }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 void DynamicTriangleNode::compile_buffer_string(std::string& buffer_string)
 {
-    std::cout << " dtn compile buffer " << std::endl;
     if(nullptr != geometry_)
     {
         geometry_->compile_buffer_string(buffer_string);
@@ -282,16 +282,15 @@ void DynamicTriangleNode::uncompile_buffer_string(std::string const& buffer_stri
 {
     if(nullptr != geometry_)
     {
-        std::cout << "dtn uncompile buffer " << std::endl;
         geometry_->uncompile_buffer_string(buffer_string);
     }
 }
+
 
 void DynamicTriangleNode::update_geometry_cache(::gua::GeometryDescription const& desc)
 {
     gua::DynamicTriangleLoader loader;
     loader.create_empty_geometry(get_name(), desc.filepath(), get_material(), desc.flags());
-    std::cout << " dt update geometry_cache " << std::endl;
 }
 
 } // namespace node

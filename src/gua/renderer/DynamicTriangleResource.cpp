@@ -327,7 +327,6 @@ void DynamicTriangleResource::compute_consistent_normals() const
 
 void DynamicTriangleResource::compile_buffer_string(std::string &buffer_string)
 {
-    std::cout << "DTriRes compile_buffer_string" << std::endl;
     std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
     dynamic_geometry_ptr_->compile_buffer_string(buffer_string);
 }
@@ -335,7 +334,6 @@ void DynamicTriangleResource::compile_buffer_string(std::string &buffer_string)
 
 void DynamicTriangleResource::uncompile_buffer_string(std::string const &buffer_string)
 {
-    std::cout << "DTriRes uncompile_buffer_string" << std::endl;
     std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
     dynamic_geometry_ptr_->uncompile_buffer_string(buffer_string);
     make_clean_flags_dirty();

@@ -78,8 +78,8 @@ struct GUA_DLL DynamicTriangle : DynamicGeometry
 
     void compute_consistent_normals() const;
 
-    void compile_buffer_string(std::string& buffer_string);
-    void uncompile_buffer_string(std::string const& buffer_string);
+    void compile_buffer_string(std::string& buffer_string) override;
+    void uncompile_buffer_string(std::string const& buffer_string) override;
 
     bool push_vertex(TriVertex const& v_to_push);
     bool update_vertex(int vertex_idx, TriVertex const& v_to_update);
