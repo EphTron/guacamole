@@ -127,8 +127,8 @@ class GUA_DLL DynamicGeometryNode : public GeometryNode
 
     virtual void forward_queued_vertices();
 
-    void compile_buffer_string(std::string& buffer_string);
-    void uncompile_buffer_string(std::string const& buffer_string);
+    virtual void compile_buffer_string(std::string& buffer_string) =0;
+    virtual void uncompile_buffer_string(std::string const& buffer_string) =0;
 
     /**
      * Implements ray picking for a triangular mesh

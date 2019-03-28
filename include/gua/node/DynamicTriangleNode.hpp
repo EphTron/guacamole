@@ -72,6 +72,9 @@ class GUA_DLL DynamicTriangleNode : public DynamicGeometryNode
 
     void forward_queued_vertices() override;
 
+    void compile_buffer_string(std::string& buffer_string) override;
+    void uncompile_buffer_string(std::string const& buffer_string) override;
+
     /**
      * Implements ray picking for a triangular mesh
      */
@@ -84,7 +87,8 @@ class GUA_DLL DynamicTriangleNode : public DynamicGeometryNode
 
     std::shared_ptr<DynamicGeometryResource> const& get_geometry() const override;
 
-    bool get_trigger_update() const { return trigger_update_; }
+    bool get_trigger_update() const { std::cout << "get update dt " << std::endl;
+        return trigger_update_; }
     void set_trigger_update(bool trigger_update) { trigger_update_ = trigger_update; }
 
     /**
