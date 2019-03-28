@@ -325,12 +325,21 @@ void DynamicTriangleResource::compute_consistent_normals() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void DynamicTriangleResource::compile_buffer_string(std::string &buffer_string)
+{
+    std::cout << "DTriRes compile_buffer_string" << std::endl;
+    std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
+    dynamic_geometry_ptr_->compile_buffer_string(buffer_string);
+}
+
+
 void DynamicTriangleResource::uncompile_buffer_string(std::string const &buffer_string)
 {
+    std::cout << "DTriRes uncompile_buffer_string" << std::endl;
     std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
     dynamic_geometry_ptr_->uncompile_buffer_string(buffer_string);
     make_clean_flags_dirty();
-};
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -377,7 +386,10 @@ void DynamicTriangleResource::forward_queued_vertices(std::vector<scm::math::vec
                                                       std::vector<float> const &queued_thicknesses, std::vector<scm::math::vec2f> const &queued_uvs)
 {
     std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-    std::dynamic_pointer_cast<DynamicTriangle>(dynamic_geometry_ptr_)->forward_queued_vertices(queued_positions, queued_colors, queued_thicknesses, queued_uvs);
+    std::dynamic_pointer_cast<DynamicTriangle>(dynamic_geometry_ptr_)->forward_queued_vertices(queued_positions, 
+                                                                                               queued_colors, 
+                                                                                               queued_thicknesses,
+                                                                                               queued_uvs);
     compute_bounding_box();
     make_clean_flags_dirty();
 }

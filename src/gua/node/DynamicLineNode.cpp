@@ -251,6 +251,26 @@ void DynamicLineNode::forward_queued_vertices()
 //   geometry_ = res;
 // }
 
+////////////////////////////////////////////////////////////////////////////////
+void DynamicLineNode::compile_buffer_string(std::string& buffer_string)
+{
+    std::cout << " dtn compile buffer " << std::endl;
+    if(nullptr != geometry_)
+    {
+        geometry_->compile_buffer_string(buffer_string);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+void DynamicLineNode::uncompile_buffer_string(std::string const& buffer_string)
+{
+    if(nullptr != geometry_)
+    {
+        std::cout << "dtn uncompile buffer " << std::endl;
+        geometry_->uncompile_buffer_string(buffer_string);
+    }
+};
+
 void DynamicLineNode::update_geometry_cache(::gua::GeometryDescription const& desc)
 {
     gua::DynamicLineLoader loader;

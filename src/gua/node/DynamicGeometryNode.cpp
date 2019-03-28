@@ -381,22 +381,22 @@ void DynamicGeometryNode::forward_queued_vertices()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DynamicGeometryNode::compile_buffer_string(std::string& buffer_string)
-{
-    if(nullptr != geometry_)
-    {
-        geometry_->compile_buffer_string(buffer_string);
-    }
-};
+// void DynamicGeometryNode::compile_buffer_string(std::string& buffer_string)
+// {
+//     if(nullptr != geometry_)
+//     {
+//         geometry_->compile_buffer_string(buffer_string);
+//     }
+// };
 
-////////////////////////////////////////////////////////////////////////////////
-void DynamicGeometryNode::uncompile_buffer_string(std::string const& buffer_string)
-{
-    if(nullptr != geometry_)
-    {
-        geometry_->uncompile_buffer_string(buffer_string);
-    }
-};
+// ////////////////////////////////////////////////////////////////////////////////
+// void DynamicGeometryNode::uncompile_buffer_string(std::string const& buffer_string)
+// {
+//     if(nullptr != geometry_)
+//     {
+//         geometry_->uncompile_buffer_string(buffer_string);
+//     }
+// };
 
 } // namespace node
 } // namespace gua

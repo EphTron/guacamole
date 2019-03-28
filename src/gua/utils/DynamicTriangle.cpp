@@ -151,12 +151,15 @@ void DynamicTriangle::compile_buffer_string(std::string& buffer_string)
     memcpy(&tmp_string[write_offset], &thicknesses[0], size_of_thicknesses);
     write_offset += size_of_thicknesses;
     memcpy(&tmp_string[write_offset], &uvs[0], size_of_uvs);
+    write_offset += size_of_uvs;
 
     buffer_string = tmp_string;
+    std::cout<<"dt compile buffer" << std::endl;
 }
 
 void DynamicTriangle::uncompile_buffer_string(std::string const& buffer_string)
 {
+    std::cout << "dyn tri uncompile_buffer_string" <<std::endl;
     uint64_t num_vertices_written = 0;
     uint64_t read_offset = 0;
 
@@ -190,10 +193,11 @@ void DynamicTriangle::uncompile_buffer_string(std::string const& buffer_string)
     memcpy(&colors[currently_occupied_vertex_slots], &buffer_string[read_offset], num_vertices_written * sizeof(Vertex::col));
     read_offset += num_vertices_written * sizeof(Vertex::col);
     memcpy(&thicknesses[currently_occupied_vertex_slots], &buffer_string[read_offset], num_vertices_written * sizeof(Vertex::thick));
-    read_offset += num_vertices_written * sizeof(TriVertex::uv);
+    read_offset += num_vertices_written * sizeof(Vertex::thick);
     memcpy(&uvs[currently_occupied_vertex_slots], &buffer_string[read_offset], num_vertices_written * sizeof(TriVertex::uv));
 
     num_occupied_vertex_slots = num_vertices_written;
+    std::cout << "Vertices written:" << num_vertices_written << std::endl;
 }
 
 bool DynamicTriangle::push_vertex(TriVertex const& v_to_push)

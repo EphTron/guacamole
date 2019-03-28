@@ -138,6 +138,7 @@ void DynamicGeometry::compute_consistent_normals() const
 
 void DynamicGeometry::compile_buffer_string(std::string& buffer_string)
 {
+    std::cout << "base compile_buffer_string" <<std::endl;
     uint64_t num_vertices_to_write = num_occupied_vertex_slots;
 
     uint64_t size_of_byte_count = sizeof(uint64_t);
@@ -167,6 +168,7 @@ void DynamicGeometry::compile_buffer_string(std::string& buffer_string)
 
 void DynamicGeometry::uncompile_buffer_string(std::string const& buffer_string)
 {
+    std::cout << "base uncompile_buffer_string" <<std::endl;
     uint64_t num_vertices_written = 0;
     uint64_t read_offset = 0;
 
@@ -292,6 +294,7 @@ void DynamicGeometry::forward_queued_vertices(std::vector<scm::math::vec3f> cons
                                               // std::vector<scm::math::vec3f> const& queued_normals
 )
 {
+    std::cout << "dg forward" << std::endl;
     positions = queued_positions;
     colors = queued_colors;
     thicknesses = queued_thicknesses;

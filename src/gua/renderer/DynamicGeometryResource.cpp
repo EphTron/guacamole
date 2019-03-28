@@ -191,21 +191,23 @@ void DynamicGeometryResource::compute_consistent_normals() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// pure virutal now
+// void DynamicGeometryResource::compile_buffer_string(std::string &buffer_string)
+// {
+//     std::cout << "DGR compile_buffer_string" << std::endl;
+//     std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
+//     dynamic_geometry_ptr_->compile_buffer_string(buffer_string);
+// };
 
-void DynamicGeometryResource::compile_buffer_string(std::string &buffer_string)
-{
-    std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-    dynamic_geometry_ptr_->compile_buffer_string(buffer_string);
-};
+// ////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-
-void DynamicGeometryResource::uncompile_buffer_string(std::string const &buffer_string)
-{
-    std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
-    dynamic_geometry_ptr_->uncompile_buffer_string(buffer_string);
-    make_clean_flags_dirty();
-};
+// void DynamicGeometryResource::uncompile_buffer_string(std::string const &buffer_string)
+// {
+//     std::cout << "DGR uncompile_buffer_string" << std::endl;
+//     std::lock_guard<std::mutex> lock(dynamic_geometry_update_mutex_);
+//     dynamic_geometry_ptr_->uncompile_buffer_string(buffer_string);
+//     make_clean_flags_dirty();
+// };
 
 ////////////////////////////////////////////////////////////////////////////////
 
