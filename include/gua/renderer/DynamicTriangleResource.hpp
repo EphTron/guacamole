@@ -95,8 +95,9 @@ class DynamicTriangleResource : public DynamicGeometryResource
 
     void compute_consistent_normals() const;
 
-    void compile_buffer_string(std::string& buffer_string);
-    void uncompile_buffer_string(std::string const& buffer_string);
+    void compile_buffer_string(std::string& buffer_string) override;
+    void uncompile_buffer_string(std::string const& buffer_string) override;
+
 
     void push_vertex(DynamicTriangle::TriVertex const& in_vertex);
     void update_vertex(int vertex_idx, DynamicTriangle::TriVertex const& in_vertex);
