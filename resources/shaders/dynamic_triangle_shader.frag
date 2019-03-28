@@ -183,7 +183,7 @@ void main() {
   #else
     gua_emissivity = 1.0;
     gua_metalness = 0.0;
-    gua_color = vec3(1.0, 0.0, 0.0);
+    gua_color = vec3(1.0, 0.0, 1.0);
     
     gua_uvs.z = 0.0;
     gua_uvs.w = 0;
