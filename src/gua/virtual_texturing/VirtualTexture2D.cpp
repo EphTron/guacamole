@@ -54,15 +54,11 @@
 
 namespace gua
 {
-std::map<std::size_t, std::shared_ptr<LayeredPhysicalTexture2D>> VirtualTexture2D::physical_texture_ptr_per_context_ = std::map<std::size_t, std::shared_ptr<LayeredPhysicalTexture2D>>();
-
-std::map<std::size_t, VTInfo> VirtualTexture2D::vt_info_per_context_ = std::map<std::size_t, VTInfo>();
-
 std::map<std::size_t, scm::gl::buffer_ptr> VirtualTexture2D::vt_addresses_ubo_per_context_ = std::map<std::size_t, scm::gl::buffer_ptr>();
 
 bool VirtualTexture2D::initialized_vt_system = false;
 
-VirtualTexture2D::VirtualTexture2D(std::string const& atlas_filename, std::size_t physical_texture_tile_slot_size, scm::gl::sampler_state_desc const& state_descripton)
+VirtualTexture2D::VirtualTexture2D(std::string const& atlas_filename, scm::gl::sampler_state_desc const& state_descripton)
 {
     std::string const ini_filename = std::regex_replace(atlas_filename, std::regex(".atlas"), ".ini");
 
@@ -110,6 +106,8 @@ void VirtualTexture2D::upload_to(RenderContext const& ctx) const
 
 void VirtualTexture2D::update_index_texture_hierarchy(RenderContext const& ctx, std::vector<std::pair<uint16_t, uint8_t*>> const& level_update_pairs)
 {
+    upload_to(ctx);
+
     for(auto const& update_pair : level_update_pairs)
     {
         uint32_t updated_level = update_pair.first;

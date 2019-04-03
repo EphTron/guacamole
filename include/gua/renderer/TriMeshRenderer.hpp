@@ -26,9 +26,14 @@
 #include <unordered_map>
 
 #include <gua/platform.hpp>
+#include <gua/config.hpp>
 #include <gua/renderer/ShaderProgram.hpp>
 
 #include <scm/gl_core/shader_objects.h>
+
+#ifdef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
+#include <gua/renderer/VTRenderer.hpp>
+#endif
 
 namespace gua
 {
@@ -37,6 +42,9 @@ class Pipeline;
 class PipelinePassDescription;
 
 class TriMeshRenderer
+#ifdef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
+    : public VTRenderer
+#endif
 {
   public:
     TriMeshRenderer(RenderContext const& ctx, SubstitutionMap const& smap);
@@ -52,10 +60,6 @@ class TriMeshRenderer
     std::vector<ShaderProgramStage> program_stages_;
     std::unordered_map<MaterialShader*, std::shared_ptr<ShaderProgram>> programs_;
     SubstitutionMap global_substitution_map_;
-
-    void _create_physical_texture(const RenderContext& ctx);
-    void _apply_cut_update(const RenderContext& ctx);
-    void _collect_feedback(const RenderContext& ctx);
 };
 
 } // namespace gua
