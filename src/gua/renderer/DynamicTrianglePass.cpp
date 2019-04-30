@@ -31,6 +31,10 @@
 #include <gua/databases/Resources.hpp>
 #include <gua/node/DynamicTriangleNode.hpp>
 
+#ifdef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
+#include <gua/renderer/VTResponsibility.hpp>
+#endif
+
 namespace gua
 {
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,14 +43,14 @@ DynamicTrianglePassDescription::DynamicTrianglePassDescription() : PipelinePassD
 {
     vertex_shader_ = "";   // "shaders/tri_mesh_shader.vert";
     fragment_shader_ = ""; // "shaders/tri_mesh_shader.frag";
-    name_ = "DynamicTrianglePass";
+    private_.name_ = "DynamicTrianglePass";
 
-    needs_color_buffer_as_input_ = false;
-    writes_only_color_buffer_ = false;
-    enable_for_shadows_ = true;
-    rendermode_ = RenderMode::Custom;
+    private_.needs_color_buffer_as_input_ = false;
+    private_.writes_only_color_buffer_ = false;
+    private_.enable_for_shadows_ = true;
+    private_.rendermode_ = RenderMode::Custom;
 
-    depth_stencil_state_ = boost::make_optional(scm::gl::depth_stencil_state_desc(true, true, scm::gl::COMPARISON_LESS, true, 1, 0, scm::gl::stencil_ops(scm::gl::COMPARISON_EQUAL)));
+    private_.depth_stencil_state_desc_ = boost::make_optional(scm::gl::depth_stencil_state_desc(true, true, scm::gl::COMPARISON_LESS, true, 1, 0, scm::gl::stencil_ops(scm::gl::COMPARISON_EQUAL)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,15 +61,20 @@ std::shared_ptr<PipelinePassDescription> DynamicTrianglePassDescription::make_co
 
 PipelinePass DynamicTrianglePassDescription::make_pass(RenderContext const &ctx, SubstitutionMap &substitution_map)
 {
-    PipelinePass pass{*this, ctx, substitution_map};
-
     auto renderer = std::make_shared<DynamicTriangleRenderer>(ctx, substitution_map);
-    pass.process_ = [renderer](PipelinePass &pass, PipelinePassDescription const &desc, Pipeline &pipe) {
-        pipe.get_context().render_context->set_depth_stencil_state(pass.depth_stencil_state_, 1);
+
+#ifdef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
+    pipeline_responsibilities_.push_back(std::make_shared<VTPreResponsibilityDescription>(*renderer.get()));
+    pipeline_responsibilities_.push_back(std::make_shared<VTPostResponsibilityDescription>(*renderer.get()));
+#endif
+
+    private_.process_ = [renderer](PipelinePass &pass, PipelinePassDescription const &desc, Pipeline &pipe) {
+        pipe.get_context().render_context->set_depth_stencil_state(pass.depth_stencil_state(), 1);
 
         renderer->render(pipe, desc);
     };
 
+    PipelinePass pass{*this, ctx, substitution_map};
     return pass;
 }
 
