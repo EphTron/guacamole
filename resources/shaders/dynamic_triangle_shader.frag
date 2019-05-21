@@ -46,11 +46,14 @@ void main()
     //gua_color = vec3(1.0, 1.0, 1.0);
   // normal mode or high fidelity shadows
 
+
   if (gua_rendering_mode != 1) {
       @material_method_calls_frag@
   }
 
   if (gua_rendering_mode == 0) {
+ 
+  if(0.0 != gua_uvs.w) {
   #if @enable_virtual_texturing@
       usampler2D index_texture_mip_map_to_sample = usampler2D(vts[gua_current_vt_idx].vt_address);
       int max_level = vts[gua_current_vt_idx].max_level_and_padding.x;
@@ -62,8 +65,9 @@ void main()
       gua_color = virtual_texturing_color.rgb;
       //gua_alpha = virtual_texturing_color.a;
       gua_alpha = 0.7;
-
  #endif
+  }
+
  }
 
   submit_fragment(gl_FragCoord.z);
