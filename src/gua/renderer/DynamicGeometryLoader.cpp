@@ -50,11 +50,9 @@ DynamicGeometryLoader::DynamicGeometryLoader() {}
 
 std::shared_ptr<node::Node> DynamicGeometryLoader::load_geometry(std::string const &file_name, unsigned flags, bool create_empty)
 {
-    std::cout << "2.1 ay" << std::endl;
     std::shared_ptr<node::Node> cached_node;
     std::string key(file_name + "_" + string_utils::to_string(flags));
     auto searched(loaded_files_.find(key));
-    std::cout << "2.5 ay" << std::endl;
     if(searched != loaded_files_.end())
     {
         cached_node = searched->second;
@@ -100,8 +98,6 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load_geometry(std::string con
         }
     }
 
-    std::cout << "3 ay" << std::endl;
-
     return cached_node;
 }
 
@@ -110,7 +106,6 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load_geometry(std::string con
 std::shared_ptr<node::Node> DynamicGeometryLoader::create_empty_geometry(std::string const &node_name, std::string const &empty_name, std::shared_ptr<Material> const &fallback_material,
                                                                          unsigned flags)
 {
-    std::cout << "Create empty geometry with material " << std::endl;
     auto cached_node(load_geometry(empty_name, flags, true));
 
     if(cached_node)
@@ -130,7 +125,6 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::create_empty_geometry(std::st
 
 std::shared_ptr<node::Node> DynamicGeometryLoader::create_empty_geometry(std::string const &node_name, std::string const &empty_name, unsigned flags)
 {
-    std::cout << "Create empty geometry " << std::endl;
     auto cached_node(load_geometry(empty_name, flags, true));
 
     if(cached_node)
@@ -141,7 +135,6 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::create_empty_geometry(std::st
         apply_fallback_material(copy, shader->make_new_material(), flags & NO_SHARED_MATERIALS);
 
         copy->set_name(node_name);
-        std::cout << "Created empty geometry - RETRUNING " << std::endl;
         return copy;
     }
 
@@ -188,13 +181,10 @@ std::shared_ptr<node::Node> DynamicGeometryLoader::load(std::string const &file_
             return node_to_return;
         };
 
-        std::cout << "1 ay" << dynamic_geometry_count << std::endl;
-
         // there is only one geometry --- return it!
         if(importer->num_parsed_dynamic_geometries() == 1)
         {
             // std::cout<<"show geo " << load_geometry() << " " << load_geometry()->get_geometry_description()<<std::endl;
-            std::cout << "2 ay" << importer->num_parsed_dynamic_geometries() << std::endl;
             return load_geometry();
         }
     }

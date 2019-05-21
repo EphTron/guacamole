@@ -294,7 +294,6 @@ void DynamicGeometry::forward_queued_vertices(std::vector<scm::math::vec3f> cons
                                               // std::vector<scm::math::vec3f> const& queued_normals
 )
 {
-    std::cout << "dg forward" << std::endl;
     positions = queued_positions;
     colors = queued_colors;
     thicknesses = queued_thicknesses;
