@@ -196,7 +196,7 @@ void DynamicTriangle::uncompile_buffer_string(std::string const& buffer_string)
     memcpy(&uvs[currently_occupied_vertex_slots], &buffer_string[read_offset], num_vertices_written * sizeof(TriVertex::uv));
 
     num_occupied_vertex_slots = num_vertices_written;
-    // std::cout << "Vertices written:" << num_vertices_written << std::endl;
+
 }
 
 bool DynamicTriangle::push_vertex(TriVertex const& v_to_push)

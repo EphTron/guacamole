@@ -294,6 +294,7 @@ void DynamicGeometry::forward_queued_vertices(std::vector<scm::math::vec3f> cons
                                               // std::vector<scm::math::vec3f> const& queued_normals
 )
 {
+
     positions = queued_positions;
     colors = queued_colors;
     thicknesses = queued_thicknesses;
@@ -309,7 +310,6 @@ void DynamicGeometry::forward_queued_vertices(std::vector<scm::math::vec3f> cons
 
 void DynamicGeometry::copy_to_buffer(Vertex* vertex_buffer) const
 {
-    std::cout << "############# BASE CLASS out" << std::endl;
     for(int vertex_id(0); vertex_id < num_occupied_vertex_slots; ++vertex_id)
     {
         vertex_buffer[vertex_id].pos = positions[vertex_id];

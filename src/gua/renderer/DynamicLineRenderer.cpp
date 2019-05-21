@@ -109,11 +109,13 @@ void DynamicLineRenderer::render(Pipeline &pipe, PipelinePassDescription const &
 
         RenderContext const &ctx(pipe.get_context());
 
+#ifdef GUACAMOLE_ENABLE_PIPELINE_PASS_TIME_QUERIES
         std::string const gpu_query_name = "GPU: Camera uuid: " + std::to_string(pipe.current_viewstate().viewpoint_uuid) + " / TrimeshPass";
         std::string const cpu_query_name = "CPU: Camera uuid: " + std::to_string(pipe.current_viewstate().viewpoint_uuid) + " / TrimeshPass";
 
         pipe.begin_gpu_query(ctx, gpu_query_name);
         pipe.begin_cpu_query(cpu_query_name);
+#endif
 
         bool write_depth = true;
         target.bind(ctx, write_depth);
@@ -256,8 +258,10 @@ void DynamicLineRenderer::render(Pipeline &pipe, PipelinePassDescription const &
         }
         target.unbind(ctx);
 
+#ifdef GUACAMOLE_ENABLE_PIPELINE_PASS_TIME_QUERIES
         pipe.end_gpu_query(ctx, gpu_query_name);
         pipe.end_cpu_query(cpu_query_name);
+#endif
 
         ctx.render_context->reset_state_objects();
     }

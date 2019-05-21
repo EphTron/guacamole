@@ -95,12 +95,6 @@ VTRenderer(ctx, smap),
 
 void DynamicTriangleRenderer::render(Pipeline &pipe, PipelinePassDescription const &desc)
 {
-#ifdef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
-    VTContextState vt_state;
-    if(!pipe.current_viewstate().shadow_mode){
-        vt_state = pre_render(pipe, desc);
-    }
-#endif
     auto &scene = *pipe.current_viewstate().scene;
     auto sorted_objects(scene.nodes.find(std::type_index(typeid(node::DynamicTriangleNode))));
 
@@ -115,11 +109,13 @@ void DynamicTriangleRenderer::render(Pipeline &pipe, PipelinePassDescription con
 
         RenderContext const &ctx(pipe.get_context());
 
+#ifdef GUACAMOLE_ENABLE_PIPELINE_PASS_TIME_QUERIES
         std::string const gpu_query_name = "GPU: Camera uuid: " + std::to_string(pipe.current_viewstate().viewpoint_uuid) + " / TrimeshPass";
         std::string const cpu_query_name = "CPU: Camera uuid: " + std::to_string(pipe.current_viewstate().viewpoint_uuid) + " / TrimeshPass";
 
         pipe.begin_gpu_query(ctx, gpu_query_name);
         pipe.begin_cpu_query(cpu_query_name);
+#endif
 
         bool write_depth = true;
         target.bind(ctx, write_depth);
@@ -202,9 +198,11 @@ void DynamicTriangleRenderer::render(Pipeline &pipe, PipelinePassDescription con
 #ifdef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
                     if(!pipe.current_viewstate().shadow_mode)
                     {
-                        if (vt_state.has_camera)
+                        VTContextState* vt_state = &VTBackend::get_instance().get_state(pipe.current_viewstate().camera.uuid);
+
+                        if(vt_state && vt_state->has_camera_)
                         {
-                            current_shader_program->set_uniform(ctx, vt_state.feedback_enabled, "enable_feedback");
+                            current_shader_program->set_uniform(ctx, vt_state->feedback_enabled_, "enable_feedback");
                         }
                     }
 #endif
@@ -271,8 +269,10 @@ void DynamicTriangleRenderer::render(Pipeline &pipe, PipelinePassDescription con
         }
         target.unbind(ctx);
 
+#ifdef GUACAMOLE_ENABLE_PIPELINE_PASS_TIME_QUERIES
         pipe.end_gpu_query(ctx, gpu_query_name);
         pipe.end_cpu_query(cpu_query_name);
+#endif
 
         ctx.render_context->reset_state_objects();
 
@@ -285,14 +285,6 @@ void DynamicTriangleRenderer::render(Pipeline &pipe, PipelinePassDescription con
         // }
         // #endif
     }
-
-
-#ifdef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
-    if(!pipe.current_viewstate().shadow_mode)
-    {
-        post_render(pipe, desc, vt_state);
-    }
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
