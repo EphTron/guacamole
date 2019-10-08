@@ -5,6 +5,7 @@ IF (GUACAMOLE_EXAMPLES)
   IF (${GUACAMOLE_GLFW3})
     add_subdirectory(clipping)
     add_subdirectory(input)
+    add_subdirectory(moving_rectangle)
     add_subdirectory(multicontext)
     add_subdirectory(nice_and_shiny)
     add_subdirectory(oit_demo)
@@ -87,6 +88,7 @@ IF (GUACAMOLE_EXAMPLES)
 
   # spoints example requires glfw and spoints-plugin
   IF (${GUACAMOLE_GLFW3} AND ${PLUGIN_guacamole-spoints})
+    add_subdirectory(isbau_spoints)
     add_subdirectory(spoints)
   ENDIF (${GUACAMOLE_GLFW3} AND ${PLUGIN_guacamole-spoints})
 

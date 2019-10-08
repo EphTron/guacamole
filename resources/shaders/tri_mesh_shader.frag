@@ -46,10 +46,6 @@ void main()
     //gua_color = vec3(1.0, 1.0, 1.0);
   // normal mode or high fidelity shadows
 
-  if (gua_rendering_mode != 1) {
-      @material_method_calls_frag@
-  }
-
   if (gua_rendering_mode == 0) {
   #if @enable_virtual_texturing@
       usampler2D index_texture_mip_map_to_sample = usampler2D(vts[gua_current_vt_idx].vt_address);
@@ -65,6 +61,10 @@ void main()
 
  #endif
  }
+
+  if (gua_rendering_mode != 1) {
+      @material_method_calls_frag@
+  }
 
   submit_fragment(gl_FragCoord.z);
 }

@@ -36,7 +36,7 @@ namespace lamure
 {
 namespace prov
 {
-class aux;
+class auxi;
 // namespace aux{
 struct feature;
 // }
@@ -46,7 +46,7 @@ class octree_node;
 
 namespace gua
 {
-class GUA_LOD_DLL Aux
+class GUA_LOD_DLL Auxi
 {
   public:
     struct feature
@@ -68,21 +68,21 @@ class GUA_LOD_DLL Aux
         uint8_t g_;
         uint8_t b_;
         uint8_t a_;
-        std::vector<Aux::feature> features_;
+        std::vector<Auxi::feature> features_;
 
-        sparse_point() : pos_(scm::math::vec3f()), r_(0), g_(0), b_(0), a_(0), features_(std::vector<Aux::feature>()){};
+        sparse_point() : pos_(scm::math::vec3f()), r_(0), g_(0), b_(0), a_(0), features_(std::vector<Auxi::feature>()){};
 
-        sparse_point(scm::math::vec3f pos, uint8_t r, uint8_t g, uint8_t b, uint8_t a, std::vector<Aux::feature> features) : pos_(pos), r_(r), g_(g), b_(b), a_(a), features_(features){};
+        sparse_point(scm::math::vec3f pos, uint8_t r, uint8_t g, uint8_t b, uint8_t a, std::vector<Auxi::feature> features) : pos_(pos), r_(r), g_(g), b_(b), a_(a), features_(features){};
 
-        std::shared_ptr<Aux::feature> getFeatureById(uint32_t id)
+        std::shared_ptr<Auxi::feature> getFeatureById(uint32_t id)
         {
             if(id < features_.size() && id >= 0)
             {
-                return std::make_shared<Aux::feature>(features_.at(id));
+                return std::make_shared<Auxi::feature>(features_.at(id));
             }
             else
             {
-                return std::make_shared<Aux::feature>(Aux::feature());
+                return std::make_shared<Auxi::feature>(Auxi::feature());
             }
         }
     };
@@ -92,7 +92,10 @@ class GUA_LOD_DLL Aux
         uint32_t camera_id_;
         scm::math::vec3f position_;
         scm::math::mat4f transform_; // trans + rot
-        float focal_length_;
+        float focal_value_x_;
+        float focal_value_y_;
+        float center_x_;
+        float center_y_;
         float distortion_;
         uint32_t image_width_;
         uint32_t image_height_;
@@ -102,18 +105,22 @@ class GUA_LOD_DLL Aux
         view()
             : camera_id_(0), position_(scm::math::vec3f()), transform_(scm::math::mat4f()) // trans + rot
               ,
-              focal_length_(0.0f), distortion_(0.0f), image_width_(0), image_height_(0), atlas_tile_id_(0), image_file_(""){};
+              focal_value_x_(0.0f),focal_value_y_(0.0f), center_x_(0.0f), center_y_(0.0f), distortion_(0.0f), image_width_(0), image_height_(0), atlas_tile_id_(0), image_file_(""){};
 
         view(uint32_t camera_id,
              scm::math::vec3f position,
              scm::math::mat4f transform,
-             float focal_length,
+             float focal_value_x,
+             float focal_value_y,
+             float center_x,
+             float center_y,
              float distortion,
              uint32_t image_width,
              uint32_t image_height,
              uint32_t atlas_tile_id,
              std::string image_file)
-            : camera_id_(camera_id), position_(position), transform_(transform), focal_length_(focal_length), distortion_(distortion), image_width_(image_width), image_height_(image_height),
+            : camera_id_(camera_id), position_(position), transform_(transform), focal_value_x_(focal_value_x), focal_value_y_(focal_value_y), center_x_(center_x), 
+              center_y_(center_y_), distortion_(distortion), image_width_(image_width), image_height_(image_height),
               atlas_tile_id_(atlas_tile_id), image_file_(image_file){};
     };
 
@@ -144,7 +151,7 @@ class GUA_LOD_DLL Aux
         atlas_tile(uint32_t atlas_tile_id, uint32_t x, uint32_t y, uint32_t width, uint32_t height) : atlas_tile_id_(atlas_tile_id), x_(x), y_(y), width_(width), height_(height){};
     };
 
-    Aux();
+    Auxi();
 
   public:
     void load_aux_file(std::string const& filename);
@@ -166,7 +173,7 @@ class GUA_LOD_DLL Aux
 
   private: // methods
   private: // member
-    std::shared_ptr<lamure::prov::aux> _aux;
+    std::shared_ptr<lamure::prov::auxi> _auxi;
 };
 
 } // namespace gua

@@ -22,6 +22,9 @@
 #ifndef GUA_SCREENGRAB_PASS_HPP
 #define GUA_SCREENGRAB_PASS_HPP
 
+#include <gua/config.hpp>
+
+#include <gua/renderer/Pipeline.hpp>
 #include <gua/renderer/PipelinePass.hpp>
 
 #include <memory>
@@ -47,6 +50,8 @@ class GUA_DLL ScreenGrabPassDescription : public PipelinePassDescription
     std::string output_prefix_;
     bool grab_next_;
 };
+
+#ifdef GUACAMOLE_ENABLE_TURBOJPEG
 
 #include <stdio.h>
 #include <jpeglib.h>
@@ -159,7 +164,7 @@ class GUA_DLL ScreenGrabJPEGSaver
     {
         unsigned i;
         unsigned length = dims_.x * dims_.y;
-#pragma omp parallel for
+
         for(i = 0; i < length; i++)
         {
             unsigned offset = i * 3;
@@ -190,6 +195,7 @@ class GUA_DLL ScreenGrabJPEGSaver
     std::vector<float> rgb_32f_;
     std::vector<unsigned char> rgb_8_;
 };
+#endif //GUACAMOLE_ENABLE_TURBOJPEG
 
 } // namespace gua
 

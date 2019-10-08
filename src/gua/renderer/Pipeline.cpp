@@ -73,6 +73,7 @@ Pipeline::Pipeline(RenderContext& ctx, math::vec2ui const& resolution)
 void Pipeline::load_passes_and_responsibilities()
 {
     std::vector<std::shared_ptr<PipelineResponsibilityDescription>> responsibility_descriptions;
+    std::set<std::string> responsibility_names;
 
     for(const auto& pass_desc : last_description_.get_passes())
     {
@@ -80,11 +81,12 @@ void Pipeline::load_passes_and_responsibilities()
 
         for(const auto& pass_responsibility : pass_desc->get_responsibilities())
         {
-            responsibility_descriptions.push_back(pass_responsibility);
+            if (responsibility_names.find(pass_responsibility->private_.name_) == responsibility_names.cend()){
+                responsibility_names.insert(pass_responsibility->private_.name_);
+                responsibility_descriptions.push_back(pass_responsibility);
+            }
         }
     }
-
-    responsibility_descriptions.erase(std::unique(responsibility_descriptions.begin(), responsibility_descriptions.end()), responsibility_descriptions.end());
 
     for(auto& responsibility_description : responsibility_descriptions)
     {
@@ -102,12 +104,23 @@ void Pipeline::load_passes_and_responsibilities()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-scm::gl::texture_2d_ptr Pipeline::render_scene(CameraMode mode, node::SerializedCameraNode const& camera, std::vector<std::unique_ptr<const SceneGraph>> const& scene_graphs)
+scm::gl::texture_2d_ptr Pipeline::render_scene(CameraMode mode, node::SerializedCameraNode const& original_camera, std::vector<std::unique_ptr<const SceneGraph>> const& scene_graphs)
 {
+	node::SerializedCameraNode camera(original_camera);
+
     // return if pipeline is disabled
     if(!camera.config.get_enabled())
     {
         return {nullptr};
+    }
+
+	bool rendering_for_hmd = false;
+    if(camera.camera_node_name.find("Vive-HMD-User") != std::string::npos)
+    {
+        rendering_for_hmd = true;
+		auto camera_transform = context_.render_window->get_latest_matrices(4);
+        camera.transform = camera.parents_transform * camera_transform;
+        node::SerializedCameraNode::camera_nodes[camera.uuid]->set_transform(camera_transform);
     }
 
     // store the current camera data
@@ -208,12 +221,18 @@ scm::gl::texture_2d_ptr Pipeline::render_scene(CameraMode mode, node::Serialized
     current_viewstate_.scene = current_viewstate_.graph->serialize(camera, mode);
     current_viewstate_.frustum = current_viewstate_.scene->rendering_frustum;
 
-    camera_block_.update(context_,
-                         current_viewstate_.scene->rendering_frustum,
-                         math::get_translation(camera.transform),
-                         current_viewstate_.scene->clipping_planes,
-                         camera.config.get_view_id(),
-                         camera.config.get_resolution());
+    if(rendering_for_hmd)
+    {
+        camera_block_.updateHMD(context_, current_viewstate_.scene->rendering_frustum, camera.parents_transform, math::get_translation(camera.transform), current_viewstate_.scene->clipping_planes,
+                                camera.config.get_view_id(),
+                             camera.config.get_resolution());
+    }
+    else
+    {
+        camera_block_.update(context_, current_viewstate_.scene->rendering_frustum, math::get_translation(camera.transform), current_viewstate_.scene->clipping_planes, camera.config.get_view_id(),
+                             camera.config.get_resolution());
+    }
+
     bind_camera_uniform_block(0);
 
     // clear gbuffer
@@ -636,9 +655,6 @@ void Pipeline::bind_gbuffer_input(std::shared_ptr<ShaderProgram> const& shader) 
     shader->set_uniform(context_, ::get_handle(gbuffer_->get_flags_buffer()), "gua_gbuffer_flags");
     shader->set_uniform(context_, ::get_handle(gbuffer_->get_depth_buffer()), "gua_gbuffer_depth");
 
-#ifdef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
-    shader->set_uniform(context_, ::get_handle(gbuffer_->get_uv_buffer()), "gua_gbuffer_uvs");
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

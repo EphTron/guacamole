@@ -1,6 +1,8 @@
 #ifndef GUACAMOLE_VTBACKEND_H
 #define GUACAMOLE_VTBACKEND_H
 
+#ifdef GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
+
 namespace gua
 {
 struct VTContextState
@@ -19,6 +21,10 @@ class GUA_DLL VTBackend
         static VTBackend instance;
         return instance;
     }
+
+    static void set_physical_texture_size(uint32_t);
+    static void set_update_throughput_size(uint32_t);
+    static void set_ram_cache_size(uint32_t);
 
     VTBackend(VTBackend const&) = delete;
     void operator=(VTBackend const&) = delete;
@@ -56,4 +62,5 @@ class GUA_DLL VTBackend
 };
 } // namespace gua
 
+#endif // GUACAMOLE_ENABLE_VIRTUAL_TEXTURING
 #endif // GUACAMOLE_VTBACKEND_H

@@ -246,8 +246,10 @@ void MLodRenderer::render(gua::Pipeline& pipe, PipelinePassDescription const& de
         lamure::model_t model_id = controller->deduce_model_id(mlod_node->get_geometry_description());
 
         auto const& scm_model_matrix = mlod_node->get_cached_world_transform();
-        // auto scm_model_view_matrix = frustum.get_view() * scm_model_matrix;
-        // auto scm_model_view_projection_matrix = frustum.get_projection() * scm_model_view_matrix;
+        //auto const& scm_model_matrix = mlod_node->get_world_transform();
+        
+        //auto scm_model_view_matrix = frustum.get_view() * scm_model_matrix;
+        //auto scm_model_view_projection_matrix = frustum.get_projection() * scm_model_view_matrix;
         // auto scm_normal_matrix = scm::math::transpose(scm::math::inverse(scm_model_matrix));
 
         cuts->send_transform(context_id, model_id, math::mat4f(scm_model_matrix));
@@ -263,8 +265,11 @@ void MLodRenderer::render(gua::Pipeline& pipe, PipelinePassDescription const& de
         std::vector<lamure::ren::cut::node_slot_aggregate>& node_list = cut.complete_set();
 
         // perform frustum culling
-        lamure::ren::bvh const* bvh = database->get_model(model_id)->get_bvh();
+        lamure::ren::bvh * bvh = database->get_model(model_id)->get_bvh();
+        bvh->set_min_lod_depth(mlod_node->get_min_lod_depth());
+
         scm::gl::frustum const& culling_frustum = cut_update_cam.get_frustum_by_model(math::mat4f(scm_model_matrix));
+        //auto culling_frustum = scm::gl::frustum(scm::math::mat4f(scm_model_view_projection_matrix));
 
         std::vector<scm::gl::boxf> const& model_bounding_boxes = bvh->get_bounding_boxes();
 
@@ -363,6 +368,19 @@ void MLodRenderer::render(gua::Pipeline& pipe, PipelinePassDescription const& de
                 current_material_program->use(ctx);
             }
 
+			auto const node_world_transform = mlod_node->get_latest_cached_world_transform(ctx.render_window);
+
+			auto model_view_mat = scene.rendering_frustum.get_view() * node_world_transform;
+			UniformValue normal_mat(math::mat4f(scm::math::transpose(scm::math::inverse(node_world_transform))));
+
+			int rendering_mode = pipe.current_viewstate().shadow_mode ? (mlod_node->get_shadow_mode() == ShadowMode::HIGH_QUALITY ? 2 : 1) : 0;
+
+			current_material_program->apply_uniform(ctx, "gua_model_matrix", math::mat4f(node_world_transform));
+			current_material_program->apply_uniform(ctx, "gua_model_view_matrix", math::mat4f(model_view_mat));
+			current_material_program->apply_uniform(ctx, "gua_normal_matrix", normal_mat);
+			current_material_program->apply_uniform(ctx, "gua_rendering_mode", rendering_mode);
+			
+#ifdef oldstuff
             auto const& scm_model_matrix = mlod_node->get_cached_world_transform();
             auto scm_model_view_matrix = frustum.get_view() * scm_model_matrix;
             // auto scm_model_view_projection_matrix = frustum.get_projection() * scm_model_view_matrix;
@@ -374,7 +392,7 @@ void MLodRenderer::render(gua::Pipeline& pipe, PipelinePassDescription const& de
             current_material_program->apply_uniform(ctx, "gua_model_view_matrix", math::mat4f(scm_model_view_matrix));
             current_material_program->apply_uniform(ctx, "gua_normal_matrix", math::mat4f(scm_normal_matrix));
             current_material_program->apply_uniform(ctx, "gua_rendering_mode", rendering_mode);
-
+#endif
             // lowfi shadows dont need material input
             if(rendering_mode != 1)
             {

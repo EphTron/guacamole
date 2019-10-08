@@ -20,7 +20,7 @@
  ******************************************************************************/
 
 // class header
-#include <gua/renderer/Aux.hpp>
+#include <gua/renderer/Auxi.hpp>
 #include <gua/renderer/OctreeNode.hpp>
 
 // guacamole headers
@@ -35,77 +35,77 @@
 // external headers
 #include <lamure/ren/dataset.h>
 
-#include <lamure/prov/aux.h>
+#include <lamure/prov/auxi.h>
 #include <lamure/prov/octree.h>
 
 namespace gua
 {
-Aux::Aux() { _aux = std::make_shared<lamure::prov::aux>(); }
+Auxi::Auxi() { _auxi = std::make_shared<lamure::prov::auxi>(); }
 
-void Aux::load_aux_file(std::string const& filename) { _aux->load_aux_file(filename); }
+void Auxi::load_aux_file(std::string const& filename) { _auxi->load_aux_file(filename); }
 
-const std::string Aux::get_filename() const { return _aux->get_filename(); }
+const std::string Auxi::get_filename() const { return _auxi->get_filename(); }
 
-const uint32_t Aux::get_num_views() const { return _aux->get_num_views(); }
+const uint32_t Auxi::get_num_views() const { return _auxi->get_num_views(); }
 
-const uint64_t Aux::get_num_sparse_points() const { return _aux->get_num_sparse_points(); }
+const uint64_t Auxi::get_num_sparse_points() const { return _auxi->get_num_sparse_points(); }
 
-const uint32_t Aux::get_num_atlas_tiles() const { return _aux->get_num_atlas_tiles(); }
+const uint32_t Auxi::get_num_atlas_tiles() const { return _auxi->get_num_atlas_tiles(); }
 
-const uint64_t Aux::get_num_nodes() const { return _aux->get_num_nodes(); }
+const uint64_t Auxi::get_num_nodes() const { return _auxi->get_num_nodes(); }
 
-const uint64_t Aux::get_octree_query(const scm::math::vec3f& _pos) const { return _aux->get_octree_query(_pos); }
+const uint64_t Auxi::get_octree_query(const scm::math::vec3f& _pos) const { return _auxi->get_octree_query(_pos); }
 
-std::shared_ptr<OctreeNode> Aux::get_octree_node(uint64_t node_id) const
+std::shared_ptr<OctreeNode> Auxi::get_octree_node(uint64_t node_id) const
 {
-    const auto& on = _aux->get_octree_node(node_id);
+    const auto& on = _auxi->get_octree_node(node_id);
 
     gua::OctreeNode new_octree_node(on.get_idx(), on.get_child_mask(), on.get_child_idx(), on.get_min(), on.get_max(), on.get_fotos());
 
     return std::make_shared<OctreeNode>(new_octree_node);
 }
 
-std::shared_ptr<Aux::view> Aux::get_view(uint32_t id) const
+std::shared_ptr<Auxi::view> Auxi::get_view(uint32_t id) const
 {
-    const auto& v = _aux->get_view(id);
+    const auto& v = _auxi->get_view(id);
 
-    Aux::view new_view(v.camera_id_, v.position_, v.transform_, v.focal_length_, v.distortion_, v.image_width_, v.image_height_, v.atlas_tile_id_, v.image_file_);
+    Auxi::view new_view(v.camera_id_, v.position_, v.transform_, v.focal_value_x_, v.focal_value_y_, v.center_x_, v.center_y_, v.distortion_, v.image_width_, v.image_height_, v.atlas_tile_id_, v.image_file_);
 
-    return std::make_shared<Aux::view>(new_view);
+    return std::make_shared<Auxi::view>(new_view);
 }
 
-std::shared_ptr<Aux::atlas_tile> Aux::get_atlas_tile(uint32_t id) const
+std::shared_ptr<Auxi::atlas_tile> Auxi::get_atlas_tile(uint32_t id) const
 {
-    const auto& at = _aux->get_atlas_tile(id);
+    const auto& at = _auxi->get_atlas_tile(id);
 
-    Aux::atlas_tile new_atlas_tile(at.atlas_tile_id_, at.x_, at.y_, at.width_, at.height_);
+    Auxi::atlas_tile new_atlas_tile(at.atlas_tile_id_, at.x_, at.y_, at.width_, at.height_);
 
-    return std::make_shared<Aux::atlas_tile>(new_atlas_tile);
+    return std::make_shared<Auxi::atlas_tile>(new_atlas_tile);
 }
 
-std::shared_ptr<Aux::sparse_point> Aux::get_sparse_point(uint64_t id) const
+std::shared_ptr<Auxi::sparse_point> Auxi::get_sparse_point(uint64_t id) const
 {
-    const auto& sp = _aux->get_sparse_point(id);
+    const auto& sp = _auxi->get_sparse_point(id);
 
-    std::vector<Aux::feature> new_features;
+    std::vector<Auxi::feature> new_features;
     for(auto const& f : sp.features_)
     {
-        Aux::feature new_feature(f.camera_id_, f.using_count_, f.coords_, f.error_);
+        Auxi:feature new_feature(f.camera_id_, f.using_count_, f.coords_, f.error_);
         new_features.push_back(new_feature);
     }
 
-    Aux::sparse_point new_sparse_point(sp.pos_, sp.r_, sp.g_, sp.b_, sp.a_, new_features);
+    Auxi::sparse_point new_sparse_point(sp.pos_, sp.r_, sp.g_, sp.b_, sp.a_, new_features);
 
-    return std::make_shared<Aux::sparse_point>(new_sparse_point);
+    return std::make_shared<Auxi::sparse_point>(new_sparse_point);
 }
 
-std::shared_ptr<Aux::atlas> Aux::get_atlas() const
+std::shared_ptr<Auxi::atlas> Auxi::get_atlas() const
 {
-    const auto& a = _aux->get_atlas();
+    const auto& a = _auxi->get_atlas();
 
-    Aux::atlas new_atlas(a.num_atlas_tiles_, a.atlas_width_, a.atlas_height_, a.rotated_);
+    Auxi::atlas new_atlas(a.num_atlas_tiles_, a.atlas_width_, a.atlas_height_, a.rotated_);
 
-    return std::make_shared<Aux::atlas>(new_atlas);
+    return std::make_shared<Auxi::atlas>(new_atlas);
 }
 
 } // namespace gua

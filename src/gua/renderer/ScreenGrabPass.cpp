@@ -22,8 +22,6 @@
 // class header
 #include <gua/renderer/ScreenGrabPass.hpp>
 
-#include <gua/renderer/Pipeline.hpp>
-
 namespace gua
 {
 ScreenGrabPassDescription::ScreenGrabPassDescription() : PipelinePassDescription(), output_prefix_(""), grab_next_(false)
@@ -53,6 +51,7 @@ PipelinePass ScreenGrabPassDescription::make_pass(RenderContext const& ctx, Subs
     private_.process_ = [&](PipelinePass&, PipelinePassDescription const&, Pipeline& pipe) {
         RenderContext const& ctx(pipe.get_context());
 
+#ifdef GUACAMOLE_ENABLE_TURBOJPEG
         if(grab_next_)
         {
             grab_next_ = false;
@@ -74,6 +73,7 @@ PipelinePass ScreenGrabPassDescription::make_pass(RenderContext const& ctx, Subs
 
             ScreenGrabJPEGSaver::get_instance()->save(output_prefix_, dims, host_color_buffer);
         }
+#endif
     };
 
     PipelinePass pass{*this, ctx, substitution_map};
